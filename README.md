@@ -20,51 +20,71 @@ Markets are matched semantically (sentence-transformers + NLI cross-encoder), li
 ## 1. Architecture
 
 ```mermaid
-graph TD
-    subgraph Client
-        FE[React SPA — Nginx :80]
+flowchart LR
+    subgraph EXT["Platforms"]
+        PM(["Polymarket"])
+        KL(["Kalshi"])
+        PF(["PredictFun"])
     end
 
-    subgraph aggregation_network
-        AGG[aggregation_service\nFastAPI :8001]
-        POLL[aggregation_polling\nML pair finder]
-        ARB[aggregation_arbitrage\nworker]
-        UMS[update_markets_service\nbatch loader]
-        EMB[markets_embedding\nembedding backfill]
-        CLN[markets_db_cleaner]
-        OBS[update_orderbooks_service\nWebSocket manager]
-        CEL[orderbooks_worker\nCelery]
-        PG[(PostgreSQL :5432)]
-        RD[(Redis :6378)]
+    subgraph ING["Ingestion"]
+        UMS["update_markets\nbatch loader"]
+        OBS["update_orderbooks\nWebSocket"]
+        CEL["orderbooks_worker\nCelery"]
     end
 
-    subgraph user_network
-        US[user_service\nFastAPI :8002]
-        UPG[(user_postgres)]
+    subgraph STORE["Storage"]
+        PG[("PostgreSQL\n:5432")]
+        RD[("Redis\n:6378")]
     end
 
-    EMBS[Embedding Service\nexternal network]
+    subgraph ML["ML Pipeline"]
+        EMBS(["Embedding\nService"])
+        EMB["markets_embedding\nbackfill"]
+        POLL["aggregation_polling\nML + NLI pair finder"]
+        ARB["aggregation_arbitrage\nscan every 2s"]
+        CLN["markets_db_cleaner"]
+    end
 
-    FE -->|GET /agg-api/*| AGG
-    FE -->|GET /user-api/*| US
+    subgraph API["API"]
+        AGG["aggregation_service\nFastAPI :8001"]
+        US["user_service\nFastAPI :8002"]
+    end
 
-    AGG --> PG
-    AGG --> RD
-    ARB -->|scan every 2s| PG
-    ARB --> RD
-    POLL --> PG
-    UMS -->|upsert markets| PG
-    EMB --> PG
-    EMB --> EMBS
-    CLN --> PG
+    FE["React SPA\nNginx :80"]
+
+    PM & KL & PF -->|REST poll| UMS
+    PM & KL & PF -->|WebSocket| OBS
     OBS -->|Celery task| CEL
+
+    UMS --> PG
     CEL --> PG
+    EMB --> PG
+    EMB <-->|embeddings| EMBS
+    POLL --> PG
+    ARB -->|every 2s| PG
+    ARB -->|cache| RD
+    CLN --> PG
 
-    US --> UPG
-    US --> RD
+    AGG --> PG & RD
+    US --> PG & RD
 
-    Polymarket & Kalshi & PredictFun -->|REST polling| UMS
-    OBS -->|WebSocket| Polymarket & Kalshi & PredictFun
+    FE -->|"/agg-api/*"| AGG
+    FE -->|"/user-api/*"| US
+
+    classDef platform fill:#1e3a5f,stroke:#3182ce,color:#bee3f8
+    classDef storage fill:#1a202c,stroke:#718096,color:#a0aec0
+    classDef worker fill:#1c2b1e,stroke:#48bb78,color:#c6f6d5
+    classDef api fill:#2d1b4e,stroke:#9f7aea,color:#e9d8fd
+    classDef client fill:#3d2008,stroke:#ed8936,color:#feebc8
+    classDef ext fill:#1e3a5f,stroke:#3182ce,color:#bee3f8,shape:stadium
+
+    class PM,KL,PF platform
+    class PG,RD storage
+    class UMS,OBS,CEL,EMB,POLL,ARB,CLN worker
+    class AGG,US api
+    class FE client
+    class EMBS ext
 ```
 
 **Data stores:**
