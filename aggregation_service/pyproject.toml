@@ -31,7 +31,7 @@ dependencies = [
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
-pythonpath = ["."]
+pythonpath = [".", "../common"]
 filterwarnings = [
     "ignore:Remove `format_exc_info`:UserWarning",
     "ignore:Parsing dates involving a day of month:DeprecationWarning",

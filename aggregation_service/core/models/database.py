@@ -47,6 +47,16 @@ async def get_rw_session() -> AsyncSession:
             raise
 
 
+async def get_rw_session_dep() -> AsyncGenerator[AsyncSession, None]:
+    async with async_session() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+
+
 async def get_ro_session() -> AsyncGenerator[AsyncSession, None]:
     """
     Read-only database session context manager.

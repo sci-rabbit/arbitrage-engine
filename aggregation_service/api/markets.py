@@ -3,7 +3,7 @@ import structlog
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.models.database import get_ro_session, get_rw_session
+from core.models.database import get_ro_session, get_rw_session_dep
 from core.repositories.market_repository import MarketRepository
 from core.repositories.orderbook_repository import OrderbookRepository
 from core.repositories.pair_repository import PairRepository
@@ -24,7 +24,7 @@ async def get_platforms(db_session: AsyncSession = Depends(get_ro_session)):
 @router.post("/add_pair")
 async def add_pair(
     markets_ids_list: list[list],
-    db_session: AsyncSession = Depends(get_rw_session),
+    db_session: AsyncSession = Depends(get_rw_session_dep),
 ):
     repo = PairRepository(session=db_session)
     return await repo.add_pair(markets_ids_list=markets_ids_list)
@@ -33,7 +33,7 @@ async def add_pair(
 @router.delete("/delete")
 async def delete_pair(
     body: DeleteMarketsBody,
-    db_session: AsyncSession = Depends(get_rw_session),
+    db_session: AsyncSession = Depends(get_rw_session_dep),
 ):
     repo = PairRepository(session=db_session)
     await repo.delete_pair(market_ids=body.market_ids)
