@@ -1,6 +1,7 @@
 """Tests for batch_commit batching logic."""
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from core.load_markets.db import batch_commit
 

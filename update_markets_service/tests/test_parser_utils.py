@@ -1,9 +1,8 @@
 """Tests for pure utility functions: parse_dt, string_to_json, get_float."""
-from datetime import datetime, timezone
+from datetime import datetime
 
-from core.market_parsers.utils import parse_dt, string_to_json
 from core.load_markets.converters import get_float
-
+from core.market_parsers.utils import parse_dt, string_to_json
 
 # ---------------------------------------------------------------------------
 # parse_dt

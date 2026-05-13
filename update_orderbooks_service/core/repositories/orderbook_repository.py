@@ -1,8 +1,8 @@
-from typing import Dict, Any, Optional
+from typing import Any
 
-from sqlalchemy.orm import Session
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
 from core.models.orderbooks import Orderbook
 
@@ -14,7 +14,7 @@ class OrderbookAsyncRepository:
     async def upsert_orderbook(
         self,
         platform_market_id: str,
-        orderbook: Optional[Dict[str, Any]],
+        orderbook: dict[str, Any] | None,
     ) -> Orderbook:
 
         result = await self.session.execute(
@@ -50,7 +50,7 @@ class OrderbookSyncRepository:
     def create_orderbook(
         self,
         platform_market_id: str,
-        orderbook: Optional[Dict[str, Any]],
+        orderbook: dict[str, Any] | None,
     ) -> Orderbook:
         obj = Orderbook(platform_market_id=platform_market_id, orderbook=orderbook)
         self.session.add(obj)
@@ -60,7 +60,7 @@ class OrderbookSyncRepository:
     def update_orderbook(
         self,
         platform_market_id: str,
-        orderbook: Optional[Dict[str, Any]],
+        orderbook: dict[str, Any] | None,
     ) -> Orderbook:
         obj = (
             self.session.query(Orderbook)
@@ -80,7 +80,7 @@ class OrderbookSyncRepository:
 
         existing = obj.orderbook
         if isinstance(existing, dict) and isinstance(orderbook, dict):
-            merged: Dict[str, Any] = dict(existing)
+            merged: dict[str, Any] = dict(existing)
             for key, value in orderbook.items():
                 if value is not None:
                     merged[key] = value

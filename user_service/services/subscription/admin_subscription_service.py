@@ -1,4 +1,3 @@
-from typing import List
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -41,7 +40,7 @@ class AdminSubscriptionService:
         limit: int = 50,
         offset: int = 0,
         **filters,
-    ) -> List[Subscription]:
+    ) -> list[Subscription]:
         return await self.subscription_repo.paginate(
             limit=limit,
             offset=offset,

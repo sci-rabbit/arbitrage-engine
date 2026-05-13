@@ -1,4 +1,3 @@
-from typing import List
 
 from pydantic import BaseModel
 
@@ -36,4 +35,4 @@ class ArbitrageResult(BaseModel):
     final_score: float
     market_a: MarketShort
     market_b: MarketShort
-    arbitrage: List[ArbitrageOpportunity]
+    arbitrage: list[ArbitrageOpportunity]

@@ -1,12 +1,12 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.deps import CurrentUser
-from core.database import get_rw_session, get_ro_session
+from core.database import get_ro_session, get_rw_session
 from dto.transaction_dto import DepositDTO, WithdrawDTO
-from schemas.transaction import TransactionResponse, DepositRequest, WithdrawRequest
+from schemas.transaction import DepositRequest, TransactionResponse, WithdrawRequest
 from services.user_transaction_service import UserTransactionService
 
 router = APIRouter(prefix="/transactions", tags=["transactions"])
@@ -21,7 +21,7 @@ async def my_transactions(
     session: ROSession,
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
-) -> List[TransactionResponse]:
+) -> list[TransactionResponse]:
     return await UserTransactionService(session).list_by_user(
         user_id=current_user.id,
         limit=limit,

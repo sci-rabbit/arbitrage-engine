@@ -1,7 +1,6 @@
-from sqlalchemy import Index
-from sqlalchemy.orm import Mapped, mapped_column
-
 from common.models.base import Base, IDMixin
+from sqlalchemy import Index
+from sqlalchemy.orm import Mapped
 
 
 class InvalidPair(IDMixin, Base):

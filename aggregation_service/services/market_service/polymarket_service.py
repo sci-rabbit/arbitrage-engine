@@ -1,4 +1,3 @@
-from typing import List
 
 from core import Market
 from core.repositories.polymarket_repository import PolymarketRepository
@@ -11,7 +10,7 @@ class PolymarketService(BaseService):
         self.session = session
         self.repo = PolymarketRepository(session=self.session)
 
-    async def search(self, common_id) -> List[Market]:
+    async def search(self, common_id) -> list[Market]:
         return await self.repo.search(common_id=common_id)
 
 

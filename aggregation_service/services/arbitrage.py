@@ -1,4 +1,5 @@
-from typing import List, Dict, Any, Optional
+from typing import Any
+
 import structlog
 
 logger = structlog.getLogger(__name__)
@@ -7,7 +8,7 @@ logger = structlog.getLogger(__name__)
 MIN_MAX_SPREAD = 0.03  # Минимальный максимальный спред для валидации
 
 
-def normalize_asks(asks: List[Any]) -> List[Dict[str, float]]:
+def normalize_asks(asks: list[Any]) -> list[dict[str, float]]:
     out = []
 
     for level in asks:
@@ -36,9 +37,9 @@ def normalize_asks(asks: List[Any]) -> List[Dict[str, float]]:
 
 
 def cheapest_ask(
-    asks: List[Any],
+    asks: list[Any],
     min_size: float,
-) -> Optional[Dict[str, float]]:
+) -> dict[str, float] | None:
     for level in normalize_asks(asks):
         if level["size"] >= min_size:
             return level
@@ -46,10 +47,10 @@ def cheapest_ask(
 
 
 def calc_depth_arbitrage(
-    asks1: List[Any],
-    asks2: List[Any],
+    asks1: list[Any],
+    asks2: list[Any],
     price_threshold: float,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     a1 = normalize_asks(asks1)
     a2 = normalize_asks(asks2)
 
@@ -130,11 +131,11 @@ def calc_depth_arbitrage(
 
 
 def check_arbitrage(
-    ob1: Dict[str, Any],
-    ob2: Dict[str, Any],
+    ob1: dict[str, Any],
+    ob2: dict[str, Any],
     min_size: float = 25,
     price_threshold: float = 0.97,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     results = []
 
     # Валидация структуры orderbook

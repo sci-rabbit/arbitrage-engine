@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List
 
 from sqlalchemy import select
 
@@ -50,7 +49,7 @@ class UserSubscriptionRepository(AsyncRepository[UserSubscription]):
         now: datetime,
         limit: int = 50,
         offset: int = 0,
-    ) -> List[UserSubscription]:
+    ) -> list[UserSubscription]:
         stmt = (
             select(UserSubscription)
             .where(
@@ -68,7 +67,7 @@ class UserSubscriptionRepository(AsyncRepository[UserSubscription]):
         user_id: int,
         limit: int = 50,
         offset: int = 0,
-    ) -> List[UserSubscription]:
+    ) -> list[UserSubscription]:
         stmt = (
             select(UserSubscription)
             .where(UserSubscription.user_id == user_id)

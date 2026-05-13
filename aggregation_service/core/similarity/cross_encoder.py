@@ -1,5 +1,4 @@
-import asyncio
-from typing import Iterable, Tuple, Optional
+from collections.abc import Iterable
 
 import numpy as np
 import structlog
@@ -26,7 +25,7 @@ class CrossEncoderClient:
 
     def score_batch(
         self,
-        pairs: Iterable[Tuple[str, str]],
+        pairs: Iterable[tuple[str, str]],
     ) -> list[float]:
         pairs_list = list(pairs)
         if not pairs_list:

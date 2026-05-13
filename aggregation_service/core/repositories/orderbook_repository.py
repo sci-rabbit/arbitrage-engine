@@ -1,4 +1,3 @@
-from typing import List
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,8 +13,8 @@ class OrderbookRepository(AsyncRepository[Orderbook]):
         super().__init__(session)
 
     async def get_by_platform_market_ids(
-        self, platform_market_ids: List[str]
-    ) -> List[Orderbook]:
+        self, platform_market_ids: list[str]
+    ) -> list[Orderbook]:
         query = select(Orderbook).where(
             Orderbook.platform_market_id.in_(platform_market_ids)
         )

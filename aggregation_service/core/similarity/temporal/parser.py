@@ -1,10 +1,10 @@
-from dateparser.search import search_dates
-from datetime import datetime, timedelta
-import dateparser
 import re
-from typing import Optional, Tuple
+from datetime import datetime, timedelta
 
-Interval = Tuple[Optional[datetime], Optional[datetime]]
+import dateparser
+from dateparser.search import search_dates
+
+Interval = tuple[datetime | None, datetime | None]
 
 MIN_YEAR = 2026
 MAX_YEAR = 3000

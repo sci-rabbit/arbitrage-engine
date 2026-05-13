@@ -1,15 +1,15 @@
 import asyncio
-
-from typing import Any, AsyncGenerator
+from collections.abc import AsyncGenerator
+from typing import Any
 
 import aiohttp
 import structlog
 from sqlalchemy import select, update
 
 from core.config import settings
-from core.models.database import get_ro_session
 from core.load_markets.fetcher import GetFetcher
 from core.models import Market
+from core.models.database import get_ro_session
 
 logger = structlog.getLogger(__name__)
 

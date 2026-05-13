@@ -9,10 +9,10 @@ import sys
 
 import structlog
 
+from arbitrage_task import ArbitrageTask
 from core.config import settings
 from core.observe.sentry import setup_sentry
 from core.redis.redis_cli import RedisService
-from arbitrage_task import ArbitrageTask
 
 logging.basicConfig(
     level=logging.INFO,

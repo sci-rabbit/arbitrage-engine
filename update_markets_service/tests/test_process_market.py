@@ -5,7 +5,7 @@ _process_market is the core decision function: save / delete / skip (None).
 No DB or HTTP needed — we bypass __init__ and mock only what the method uses.
 """
 import asyncio
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -14,19 +14,18 @@ from services.kalshi_markets_loader import KalshiLoaderService
 from services.polymarket_markets_loader import PolymarketLoaderService
 from services.predict_fun_markets_loader import PredictFunLoaderService
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
 def _future(days=30) -> str:
-    return (datetime.now(timezone.utc) + timedelta(days=days)).strftime(
+    return (datetime.now(UTC) + timedelta(days=days)).strftime(
         "%Y-%m-%dT%H:%M:%SZ"
     )
 
 
 def _past(days=1) -> str:
-    return (datetime.now(timezone.utc) - timedelta(days=days)).strftime(
+    return (datetime.now(UTC) - timedelta(days=days)).strftime(
         "%Y-%m-%dT%H:%M:%SZ"
     )
 

@@ -27,7 +27,7 @@ query_for_find_pairs = text(
                 b.semantic_embedding     AS b_semantic_embedding,
                 b.close_time             AS b_close_time,
                 b.outcomes               AS b_outcomes,
-    
+
                 (a.embedding <-> b.embedding) AS min_distance
             FROM markets a
                      JOIN LATERAL (
@@ -51,7 +51,7 @@ query_for_find_pairs = text(
             ) b ON true
         WHERE a.embedding IS NOT NULL
             )
-    
+
         SELECT
             a_id,
             a_platform,

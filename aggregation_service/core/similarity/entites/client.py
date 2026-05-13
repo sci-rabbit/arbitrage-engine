@@ -1,14 +1,7 @@
 from rapidfuzz import fuzz
 
-from core.similarity.entites.parser import extract_entities
-
-from core.similarity.entites.parser import extract_tickers
-
-from core.similarity.entites.parser import extract_persons
-
 from core.similarity.entites.hf_gates import extract_entities_hf
-
-
+from core.similarity.entites.parser import extract_entities, extract_persons, extract_tickers
 
 # Пороги fuzzy-matching для entity matching
 NER_ENTITY_FUZZY_THRESHOLD = 80   # мин. схожесть для совпадения NER-сущностей

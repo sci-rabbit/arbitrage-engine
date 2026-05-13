@@ -1,11 +1,10 @@
 import time
-from typing import Tuple
 
 import structlog
 
 from core.models.invalid_pairs import InvalidPair
-from core.models.pair_a_index import PairAIndex
 from core.models.market_pairs import Pair
+from core.models.pair_a_index import PairAIndex
 from core.repositories.invalid_pairs_repository import InvalidPairRepository
 from core.repositories.market_repository import MarketRepository
 from services.similarity_service.service import MarketSimilarityService
@@ -49,7 +48,7 @@ class PairGenerationService:
         saved_invalid = 0
         candidates_count = 0
 
-        batch_valid: list[Tuple[Pair, str]] = []
+        batch_valid: list[tuple[Pair, str]] = []
         batch_invalid: list[InvalidPair] = []
 
         async for batch in self.similarity_service.find_similar_pairs(
@@ -130,7 +129,7 @@ class PairGenerationService:
     # Отдельные методы flush
     # ------------------------------------------------------
 
-    async def _flush_valid(self, batch: list[Tuple[Pair, str]]) -> None:
+    async def _flush_valid(self, batch: list[tuple[Pair, str]]) -> None:
         try:
             for pair, _ in batch:
                 self.market_repo.session.add(pair)

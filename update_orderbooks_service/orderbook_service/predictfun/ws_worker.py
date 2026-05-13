@@ -18,23 +18,22 @@ Endpoint: wss://ws.predict.fun/ws
 Статусы: в документации явных событий «маркет закрыт» / «ордербук недоступен» по WS не описано.
 """
 import asyncio
-from typing import List, Optional, Dict, Any
+from typing import Any
 
 import aiohttp
+import structlog
 from aiohttp import WSMsgType
 from aiohttp_socks import ProxyConnector
-import structlog
 
 from core.config import settings
 from core.models.database import get_ro_session
-from core.repositories.predictfun_repository import PredictfunRepository
 from core.orderbook_formatters.predictfun_formatter import format_predictfun_orderbook
-
+from core.repositories.predictfun_repository import PredictfunRepository
 
 log = structlog.get_logger(__name__)
 
 
-def _make_connector() -> Optional[ProxyConnector]:
+def _make_connector() -> ProxyConnector | None:
     proxy_url = getattr(settings.predict_fun, "proxy_url", None)
     if proxy_url:
         return ProxyConnector.from_url(proxy_url)
@@ -51,11 +50,11 @@ class PredictfunWSWorker:
 
     def __init__(
         self,
-        market_ids: List[str],
+        market_ids: list[str],
         updates_queue: asyncio.Queue,
         new_markets_queue: asyncio.Queue,
     ):
-        self.market_ids: List[str] = list(market_ids)
+        self.market_ids: list[str] = list(market_ids)
         self.updates_queue = updates_queue
         self.new_markets_queue = new_markets_queue
         self.url = settings.predict_fun.ws_url
@@ -66,7 +65,7 @@ class PredictfunWSWorker:
         self._request_id += 1
         return self._request_id
 
-    async def _subscribe(self, ws: aiohttp.ClientWebSocketResponse, market_ids: List[str]) -> None:
+    async def _subscribe(self, ws: aiohttp.ClientWebSocketResponse, market_ids: list[str]) -> None:
         if not market_ids:
             return
         for mid in market_ids:
@@ -93,7 +92,7 @@ class PredictfunWSWorker:
                 await self.new_markets_queue.put(new_ids)
                 return
 
-    async def _handle_message(self, data: Dict[str, Any]) -> None:
+    async def _handle_message(self, data: dict[str, Any]) -> None:
         """
         Обработка входящих сообщений:
         - читаем topic вида `predictOrderbook/{marketId}`;

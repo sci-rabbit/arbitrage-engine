@@ -1,12 +1,11 @@
 import logging
-from typing import List
 
-from sqlalchemy import select, distinct
+from sqlalchemy import distinct, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core import Market
 from core.repositories.base_repository import AsyncRepository
-from core.repositories.queries import query_for_find_pairs, query_for_cleanup_top_n
+from core.repositories.queries import query_for_cleanup_top_n, query_for_find_pairs
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,7 @@ class MarketRepository(AsyncRepository[Market]):
     def __init__(self, session: AsyncSession):
         super().__init__(session)
 
-    async def get_platforms(self) -> List[str]:
+    async def get_platforms(self) -> list[str]:
         query = select(distinct(Market.platform))
         result = await self.session.execute(query)
         return list(result.scalars().all())
@@ -31,7 +30,7 @@ class MarketRepository(AsyncRepository[Market]):
         self,
         text: str,
         platform: str,
-    ) -> List[Market]:
+    ) -> list[Market]:
         query = (
             select(Market)
             .where(Market.normalized_title == text)

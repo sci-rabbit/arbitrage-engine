@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Any
 
 from core import Market
 from core.similarity.entites.hf_gates import entity_match_score
@@ -15,7 +15,7 @@ class SimilarityService:
 
     def get_similarity(
         self, a: Market, b: Market, threshold: float
-    ) -> Dict[str, Any] | None:
+    ) -> dict[str, Any] | None:
         if not hard_gate(a, b):
             return None
 

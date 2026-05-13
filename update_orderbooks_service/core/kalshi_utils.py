@@ -1,17 +1,16 @@
 import base64
-from typing import List
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 
-def dollars_fp_to_cents(entries) -> List[List[float]]:
+def dollars_fp_to_cents(entries) -> list[list[float]]:
     """[['0.0100', '200.00'], ...] -> [[1, 200.0], ...] (цены в центах)."""
     if not entries:
         return []
-    out: List[List[float]] = []
+    out: list[list[float]] = []
     for entry in entries:
         if not isinstance(entry, (list, tuple)) or len(entry) < 2:
             continue

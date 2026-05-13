@@ -1,18 +1,15 @@
-import structlog
-from typing import List
 
-from fastapi import APIRouter, Query, Depends
+import structlog
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.models.database import get_rw_session
-from core.models.database import get_ro_session
+from core.models.database import get_ro_session, get_rw_session
 from core.repositories.market_repository import MarketRepository
 from core.repositories.orderbook_repository import OrderbookRepository
 from core.repositories.pair_repository import PairRepository
-from core.schemas.markets import MarketPair, MarketShort, DeleteMarketsBody
+from core.schemas.markets import DeleteMarketsBody, MarketPair, MarketShort
 from core.schemas.orderbooks import OrderbookOut
 from services.market_service.service import MarketService
-
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/markets", tags=["markets"])
@@ -26,7 +23,7 @@ async def get_platforms(db_session: AsyncSession = Depends(get_ro_session)):
 
 @router.post("/add_pair")
 async def add_pair(
-    markets_ids_list: List[list],
+    markets_ids_list: list[list],
     db_session: AsyncSession = Depends(get_rw_session),
 ):
     repo = PairRepository(session=db_session)
@@ -96,7 +93,7 @@ async def get_market_pairs(
     final_score: float = Query(0.7, ge=0.0, le=1.0),
     limit: int = Query(500, ge=1, le=500),
     offset: int = Query(0, ge=0),
-) -> List[MarketPair]:
+) -> list[MarketPair]:
     pair_repo = PairRepository(session=db_session)
 
     pairs_with_markets = await pair_repo.get_all_pairs_with_markets(
@@ -107,7 +104,7 @@ async def get_market_pairs(
     )
     logger.info("get_market_pairs_fetched", total_pairs=len(pairs_with_markets))
 
-    result: List[MarketPair] = []
+    result: list[MarketPair] = []
 
     for pair, markets in pairs_with_markets:
         if len(markets) != 2:
@@ -149,11 +146,11 @@ async def get_market_pairs(
     return result
 
 
-@router.get("/orderbooks", response_model=List[OrderbookOut])
+@router.get("/orderbooks", response_model=list[OrderbookOut])
 async def get_orderbooks(
-    platform_market_ids: List[str] = Query(...),
+    platform_market_ids: list[str] = Query(...),
     db_session: AsyncSession = Depends(get_ro_session),
-) -> List[OrderbookOut]:
+) -> list[OrderbookOut]:
     repo = OrderbookRepository(session=db_session)
     orderbooks = await repo.get_by_platform_market_ids(platform_market_ids)
     return [

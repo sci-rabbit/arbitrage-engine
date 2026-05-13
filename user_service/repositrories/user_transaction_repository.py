@@ -1,5 +1,4 @@
 from decimal import Decimal
-from typing import List
 
 from sqlalchemy import select
 
@@ -29,7 +28,7 @@ class UserTransactionRepository(AsyncRepository[UserTransaction]):
         user_id: int,
         limit: int = 50,
         offset: int = 0,
-    ) -> List[UserTransaction]:
+    ) -> list[UserTransaction]:
         stmt = (
             select(UserTransaction)
             .where(UserTransaction.user_id == user_id)
@@ -45,7 +44,7 @@ class UserTransactionRepository(AsyncRepository[UserTransaction]):
         limit: int = 50,
         offset: int = 0,
         type: str | None = None,
-    ) -> List[UserTransaction]:
+    ) -> list[UserTransaction]:
         stmt = select(UserTransaction).order_by(UserTransaction.id.desc())
 
         if type is not None:

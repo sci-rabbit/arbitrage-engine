@@ -1,11 +1,11 @@
 """Tests for fetch_series_ticker, load_kalshi_markets, load_polymarket_markets, load_predict_fun_markets."""
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from core.load_markets.loaders.load_kalshi import fetch_series_ticker, load_kalshi_markets
 from core.load_markets.loaders.load_polymarket import load_polymarket_markets
 from core.load_markets.loaders.load_predict_fun import load_predict_fun_markets
-
 
 # ---------------------------------------------------------------------------
 # fetch_series_ticker

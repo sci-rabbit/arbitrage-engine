@@ -1,16 +1,14 @@
 import json
-from typing import Dict, Any, List
+from typing import Any
 
-from sqlalchemy import select, and_, func, text
+from sqlalchemy import and_, func, select, text
+from sqlalchemy.orm import Session
 
+from core.models.market_pairs import Pair
 from core.models.markets import Market
 from core.repositories.market_repository import (
     MarketRepository,
 )
-from sqlalchemy.orm import Session
-
-from core.models.market_pairs import Pair
-
 
 market_platform = "polymarket"
 
@@ -32,14 +30,14 @@ get_active_tickers_in_pa_query = text(
 
 class PolymarketRepository(MarketRepository):
 
-    async def get_active_markets(self) -> List[Market]:
+    async def get_active_markets(self) -> list[Market]:
         query = select(Market).where(
             and_(Market.platform == market_platform, Market.close_time > func.now())
         )
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
-    async def get_active_markets_in_pairs(self) -> List[Market]:
+    async def get_active_markets_in_pairs(self) -> list[Market]:
         query = select(Market).where(
             and_(
                 Market.platform == market_platform,
@@ -52,7 +50,7 @@ class PolymarketRepository(MarketRepository):
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
-    async def get_active_tickers_in_pairs(self) -> List[Dict[str, Any]]:
+    async def get_active_tickers_in_pairs(self) -> list[dict[str, Any]]:
         query = get_active_tickers_in_pa_query
         result = await self.session.execute(query)
         return [
@@ -71,7 +69,7 @@ class PolymarketRepository(MarketRepository):
 
     async def get_token_ids_and_market_id(
         self,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         rows = await self.get_active_markets_in_pairs()
 
         mapping = {}
@@ -93,7 +91,7 @@ class PolymarketSyncRepository:
         self.session = session
 
     def update_orderbook(
-        self, platform_market_id: str, orderbook: Dict[str, Any]
+        self, platform_market_id: str, orderbook: dict[str, Any]
     ) -> Market | None:
         market = (
             self.session.query(Market)

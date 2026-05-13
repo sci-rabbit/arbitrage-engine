@@ -1,8 +1,7 @@
 """Lazy initialization of NLI model for entailment detection."""
-from typing import List, Tuple, Optional
 
-import torch
 import structlog
+import torch
 from transformers import pipeline
 
 logger = structlog.getLogger(__name__)
@@ -29,9 +28,9 @@ def get_nli_model():
 
 
 def entailment_scores_batch(
-    pairs: List[Tuple[str, str]],
+    pairs: list[tuple[str, str]],
     batch_size: int = 32,
-) -> List[float]:
+) -> list[float]:
     """
     For each (premise, hypothesis) pair returns probability that
     premise entails hypothesis.
@@ -39,9 +38,9 @@ def entailment_scores_batch(
     if not pairs:
         return []
 
-    results: List[Optional[float]] = [None] * len(pairs)
-    uncached_indices: List[int] = []
-    uncached_keys: List[Tuple[str, str]] = []
+    results: list[float | None] = [None] * len(pairs)
+    uncached_indices: list[int] = []
+    uncached_keys: list[tuple[str, str]] = []
 
     for i, (p, h) in enumerate(pairs):
         key = (p[:512], h[:512])

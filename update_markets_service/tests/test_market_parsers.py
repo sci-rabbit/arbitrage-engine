@@ -1,10 +1,9 @@
 """Tests for KalshiParser, PolyMarketParser, PredictFunParser."""
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from core.market_parsers.kalshi_parser import KalshiParser
 from core.market_parsers.polymarket_parser import PolyMarketParser
 from core.market_parsers.predict_fun_parser import PredictFunParser, _date_from_slug
-
 
 # ---------------------------------------------------------------------------
 # KalshiParser
@@ -159,7 +158,7 @@ def test_poly_event_id_none_when_empty_events():
 
 def test_date_from_slug_extracts_date():
     dt = _date_from_slug("nfl-game-2025-11-15")
-    assert dt == datetime(2025, 11, 15, tzinfo=timezone.utc)
+    assert dt == datetime(2025, 11, 15, tzinfo=UTC)
 
 
 def test_date_from_slug_no_match_returns_none():
@@ -221,7 +220,7 @@ def test_pf_sports_close_time_from_slug():
         outcomes=[{"name": "TeamA", "team": "TeamA"}, {"name": "TeamB", "team": "TeamB"}],
     )
     result = PredictFunParser.parse_market(raw)
-    assert result["close_time"] == datetime(2025, 9, 20, tzinfo=timezone.utc)
+    assert result["close_time"] == datetime(2025, 9, 20, tzinfo=UTC)
 
 
 def test_pf_non_sports_close_time_is_none():

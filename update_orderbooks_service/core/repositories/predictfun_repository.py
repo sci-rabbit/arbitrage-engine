@@ -1,12 +1,11 @@
-from typing import List, Any, Dict
+from typing import Any
 
-from sqlalchemy import select, and_, func, text
+from sqlalchemy import and_, func, select, text
 from sqlalchemy.orm import Session
 
 from core import Market
 from core.models.market_pairs import Pair
 from core.repositories.market_repository import MarketRepository
-
 
 market_platform = "predict_fun"
 
@@ -27,12 +26,12 @@ get_active_tickers_in_pa_query = text(
 
 class PredictfunRepository(MarketRepository):
 
-    async def get_active_markets(self) -> List[Market]:
+    async def get_active_markets(self) -> list[Market]:
         query = select(Market).where(Market.platform == market_platform)
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
-    async def get_active_markets_in_pairs(self) -> List[Market]:
+    async def get_active_markets_in_pairs(self) -> list[Market]:
         query = select(Market).where(
             and_(
                 Market.platform == market_platform,
@@ -44,7 +43,7 @@ class PredictfunRepository(MarketRepository):
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
-    async def get_active_tickers_in_pairs(self) -> List[Dict[str, Any]]:
+    async def get_active_tickers_in_pairs(self) -> list[dict[str, Any]]:
         query = get_active_tickers_in_pa_query
         result = await self.session.execute(query)
         return [row[0] for row in result.fetchall() if row[0]]
@@ -55,7 +54,7 @@ class PredictfunSyncRepository:
         self.session = session
 
     def update_orderbook(
-        self, platform_market_id: str, orderbook: Dict[str, Any]
+        self, platform_market_id: str, orderbook: dict[str, Any]
     ) -> Market | None:
         market = (
             self.session.query(Market)

@@ -1,8 +1,7 @@
 """Tests for results_handler, process_tasks, async_process_tasks."""
 import pytest
 
-from core.load_markets.tasks import results_handler, process_tasks, async_process_tasks
-
+from core.load_markets.tasks import async_process_tasks, process_tasks, results_handler
 
 # ---------------------------------------------------------------------------
 # results_handler

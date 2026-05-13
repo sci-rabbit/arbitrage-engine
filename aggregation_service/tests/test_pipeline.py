@@ -1,7 +1,8 @@
 """Tests for SimilarityPipeline.run."""
 from unittest.mock import MagicMock
-from services.similarity_service.stages.pipeline import SimilarityPipeline
+
 from services.similarity_service.stages.dataclass import PairItem
+from services.similarity_service.stages.pipeline import SimilarityPipeline
 
 
 def _market(mid="m1"):

@@ -1,10 +1,10 @@
 """Tests for HardGateStage, ChannelScoreStage, FinalScoreStage, NLIGateStage."""
 from unittest.mock import MagicMock, patch
 
-from services.similarity_service.stages.dataclass import PairItem
-from services.similarity_service.stages.hardgates_stage import HardGateStage
 from services.similarity_service.stages.channelscores_stage import ChannelScoreStage
+from services.similarity_service.stages.dataclass import PairItem
 from services.similarity_service.stages.finalscores_stage import FinalScoreStage
+from services.similarity_service.stages.hardgates_stage import HardGateStage
 from services.similarity_service.stages.nli_gate_stage import NLIGateStage
 
 

@@ -6,8 +6,9 @@ token_id → (platform_market_id, side) mapping.
 We patch get_active_markets_in_pairs to avoid DB.
 """
 import json
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 from core.models.markets import Market
 from core.repositories.poly_repository import PolymarketRepository

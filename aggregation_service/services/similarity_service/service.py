@@ -1,13 +1,9 @@
 import time
-from typing import Optional
 
 import structlog
 
-
-from core.similarity.cross_encoder import CrossEncoderClient
-
 from core.models.markets import market_from_row
-
+from core.similarity.cross_encoder import CrossEncoderClient
 from services.similarity_service.compute_scores import ComputeScores
 from services.similarity_service.stages.channelscores_stage import ChannelScoreStage
 from services.similarity_service.stages.dataclass import PairItem
@@ -35,7 +31,7 @@ class MarketSimilarityService:
         weights=None,
         threshold=0.7,
         max_distance=0.7,
-        cross_encoder_threshold: Optional[float] = 0.85,
+        cross_encoder_threshold: float | None = 0.85,
     ):
         self.repo = repo
         self.threshold = threshold

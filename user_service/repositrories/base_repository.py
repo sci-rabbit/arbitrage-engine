@@ -1,13 +1,14 @@
-from typing import TypeVar, Generic, Dict, Any, Type, List
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+import builtins
+from typing import Any, Generic, TypeVar
 
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 Model = TypeVar("Model")
 
 
 class AsyncRepository(Generic[Model]):
-    model: Type[Model] = None
+    model: type[Model] = None
 
     def __init__(self, session: AsyncSession):
         self.session = session
@@ -40,7 +41,7 @@ class AsyncRepository(Generic[Model]):
         self,
         limit: int = 50,
         offset: int = 0,
-    ) -> List[Model]:
+    ) -> list[Model]:
         stmt = select(self.model).limit(limit).offset(offset)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
@@ -50,7 +51,7 @@ class AsyncRepository(Generic[Model]):
         limit: int = 50,
         offset: int = 0,
         **filters,
-    ) -> List[Model]:
+    ) -> builtins.list[Model]:
         stmt = select(self.model).filter_by(**filters).limit(limit).offset(offset)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
@@ -64,7 +65,7 @@ class AsyncRepository(Generic[Model]):
     async def update(
         self,
         obj: Model,
-        obj_data: Dict[str, Any],
+        obj_data: dict[str, Any],
     ) -> Model:
         obj = await self.session.merge(obj)
         for name, value in obj_data.items():

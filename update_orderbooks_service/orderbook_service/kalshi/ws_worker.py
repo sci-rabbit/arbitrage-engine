@@ -18,23 +18,22 @@ Endpoint: wss://api.elections.kalshi.com/trade-api/ws/v2 (требуется aut
   через REST: https://docs.kalshi.com/api-reference/market/get-markets
 """
 import asyncio
-from typing import List, Optional, Dict, Any
+from typing import Any
 
 import aiohttp
+import structlog
 from aiohttp import WSMsgType
 from aiohttp_socks import ProxyConnector
-import structlog
 
 from core.config import settings
-from core.models.database import get_ro_session
 from core.kalshi_utils import dollars_fp_to_cents
+from core.models.database import get_ro_session
 from core.repositories.kalshi_repository import KalshiRepository
-
 
 log = structlog.get_logger(__name__)
 
 
-def _make_connector() -> Optional[ProxyConnector]:
+def _make_connector() -> ProxyConnector | None:
     proxy_url = getattr(settings.kalshi, "proxy_url", None)
     if proxy_url:
         return ProxyConnector.from_url(proxy_url)
@@ -50,11 +49,11 @@ class KalshiWSWorker:
 
     def __init__(
         self,
-        tickers: List[str],
+        tickers: list[str],
         updates_queue: asyncio.Queue,
         new_tickers_queue: asyncio.Queue,
     ):
-        self.tickers: List[str] = list(tickers)
+        self.tickers: list[str] = list(tickers)
         self.updates_queue = updates_queue
         self.new_tickers_queue = new_tickers_queue
         self.url = settings.kalshi.ws_url
@@ -68,7 +67,7 @@ class KalshiWSWorker:
         self._sub_id += 1
         return self._sub_id
 
-    async def _subscribe(self, ws: aiohttp.ClientWebSocketResponse, tickers: List[str]) -> None:
+    async def _subscribe(self, ws: aiohttp.ClientWebSocketResponse, tickers: list[str]) -> None:
         if not tickers:
             return
         msg = {
@@ -96,7 +95,7 @@ class KalshiWSWorker:
                 await self.new_tickers_queue.put(new_tickers)
                 return
 
-    async def _handle_message(self, data: Dict[str, Any]) -> None:
+    async def _handle_message(self, data: dict[str, Any]) -> None:
         msg_type = data.get("type")
         msg = data.get("msg") or {}
         ticker = msg.get("market_ticker") or msg.get("ticker")

@@ -1,11 +1,10 @@
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from sqlalchemy import UniqueConstraint, ForeignKey, Numeric
-from sqlalchemy.orm import mapped_column, Mapped, relationship
+from sqlalchemy import ForeignKey, Numeric, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base
-
 
 if TYPE_CHECKING:
     from models.order import Order

@@ -1,7 +1,8 @@
-from typing import Any, AsyncGenerator
+from collections.abc import AsyncGenerator
+from typing import Any
+
 import aiohttp
 import structlog
-
 
 from core.config import settings
 from core.load_markets.fetcher import GetFetcher

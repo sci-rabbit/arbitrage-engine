@@ -1,15 +1,13 @@
 import asyncio
-from typing import List
 
 import structlog
 
 from orderbook_service.polymarket.ws import PolymarketWSWorker
 
-
 log = structlog.get_logger(__name__)
 
 
-ASYNC_ASSET_IDS: List[str] = [
+ASYNC_ASSET_IDS: list[str] = [
     "96292701313700591758244756869796264483122104108648861038158096856523650425510",
     "102055354858414185480457136339361588264019296944085790991211802364942028665034",
 ]
@@ -39,7 +37,7 @@ async def run_once() -> None:
                 market_id, side, orderbook = await asyncio.wait_for(
                     updates_queue.get(), timeout=WATCHDOG_TIMEOUT_SECONDS
                 )
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 log.warning(
                     "test_polymarket_ws.watchdog_timeout",
                     timeout_seconds=WATCHDOG_TIMEOUT_SECONDS,
@@ -79,7 +77,7 @@ async def main() -> None:
     while True:
         try:
             await run_once()
-        except asyncio.TimeoutError:
+        except TimeoutError:
             # watchdog: перезапускаем цикл
             log.info("test_polymarket_ws.restart_after_timeout")
             continue

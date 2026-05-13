@@ -1,10 +1,10 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.deps import CurrentUser
-from core.database import get_rw_session, get_ro_session
+from core.database import get_ro_session, get_rw_session
 from schemas.order import OrderResponse
 from schemas.subscription import SubscriptionResponse
 from schemas.user_subscription import UserSubscriptionResponse
@@ -24,7 +24,7 @@ async def list_subscriptions(
     session: ROSession,
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
-) -> List[SubscriptionResponse]:
+) -> list[SubscriptionResponse]:
     return await AdminSubscriptionService(session).list(limit=limit, offset=offset)
 
 
@@ -50,7 +50,7 @@ async def my_subscriptions(
     session: ROSession,
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
-) -> List[UserSubscriptionResponse]:
+) -> list[UserSubscriptionResponse]:
     return await UserSubscriptionService(session).list_active(
         user_id=current_user.id,
         limit=limit,
@@ -64,7 +64,7 @@ async def my_orders(
     session: ROSession,
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
-) -> List[OrderResponse]:
+) -> list[OrderResponse]:
     return await OrderService(session).list_by_user(
         user_id=current_user.id,
         limit=limit,

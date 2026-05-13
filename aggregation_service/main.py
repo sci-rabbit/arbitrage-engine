@@ -37,14 +37,13 @@ from core.config import settings
 
 logging.getLogger().setLevel(getattr(logging, settings.log_level.upper(), logging.INFO))
 
-from api.markets import router as markets_router
 from api.arbitrage import router as arbitrage_router
+from api.markets import router as markets_router
 from core.exc.async_exc_handler import setup_asyncio_exception_handler
 from core.exc.fastapi_exc_handler import setup_exception_handlers
-from core.observe.sentry import setup_sentry
 from core.middleware.rate_limit import RateLimitMiddleware
+from core.observe.sentry import setup_sentry
 from core.redis.redis_cli import RedisService
-
 
 logger = structlog.getLogger(__name__)
 

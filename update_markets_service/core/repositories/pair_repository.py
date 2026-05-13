@@ -1,4 +1,4 @@
-from sqlalchemy import delete, cast, TEXT, ARRAY
+from sqlalchemy import ARRAY, TEXT, cast, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models import Pair

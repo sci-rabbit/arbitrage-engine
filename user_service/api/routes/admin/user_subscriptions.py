@@ -1,12 +1,16 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.deps import require
-from core.database import get_rw_session, get_ro_session
-from dto.user_subscription_dto import GrantSubscriptionDTO, ExtendSubscriptionDTO
-from schemas.user_subscription import UserSubscriptionResponse, GrantSubscriptionRequest, ExtendSubscriptionRequest
+from core.database import get_ro_session, get_rw_session
+from dto.user_subscription_dto import ExtendSubscriptionDTO, GrantSubscriptionDTO
+from schemas.user_subscription import (
+    ExtendSubscriptionRequest,
+    GrantSubscriptionRequest,
+    UserSubscriptionResponse,
+)
 from services.admin_user_subscription_service import AdminUserSubscriptionService
 
 router = APIRouter(
@@ -25,7 +29,7 @@ async def list_user_subscriptions(
     session: ROSession,
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
-) -> List[UserSubscriptionResponse]:
+) -> list[UserSubscriptionResponse]:
     return await AdminUserSubscriptionService(session).list_all_by_user(
         user_id=user_id,
         limit=limit,

@@ -1,7 +1,7 @@
-from typing import Optional, Dict, Any
+from typing import Any
 
 
-def normalize_prices(m: Dict[str, Any]) -> Dict[str, Optional[float]]:
+def normalize_prices(m: dict[str, Any]) -> dict[str, float | None]:
     """
     Возвращает нормализованные цены:
     yes_bid, yes_ask, no_bid, no_ask
@@ -42,7 +42,7 @@ def normalize_prices(m: Dict[str, Any]) -> Dict[str, Optional[float]]:
     }
 
 
-def should_skip_market(m: Dict[str, Any]) -> bool:
+def should_skip_market(m: dict[str, Any]) -> bool:
     p = normalize_prices(m)
 
     yb, ya = p["yes_bid"], p["yes_ask"]

@@ -7,15 +7,15 @@ Both classes contain the same merge logic; tests verify:
   - dict + dict → merges, None values in incoming batch are skipped
   - non-dict (either side) → replaces outright
 """
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock
 
-from core.repositories.orderbook_repository import (
-    OrderbookSyncRepository,
-    OrderbookAsyncRepository,
-)
 from core.models.orderbooks import Orderbook
-
+from core.repositories.orderbook_repository import (
+    OrderbookAsyncRepository,
+    OrderbookSyncRepository,
+)
 
 # ---------------------------------------------------------------------------
 # Helpers

@@ -7,7 +7,6 @@ from dto.transaction_dto import DepositDTO
 from services.user_transaction_service import UserTransactionService
 from tests.factories import auth_headers, make_user
 
-
 # ---------------------------------------------------------------------------
 # GET /transactions/my
 # ---------------------------------------------------------------------------

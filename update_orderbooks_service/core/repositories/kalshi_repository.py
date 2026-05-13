@@ -1,13 +1,12 @@
-from typing import Dict, Any, List
+from typing import Any
 
-from sqlalchemy import select, and_, func, text
+from sqlalchemy import and_, func, select, text
 from sqlalchemy.orm import Session
 
 from core.models.markets import Market
 from core.repositories.market_repository import (
     MarketRepository,
 )
-
 
 market_platform = "kalshi"
 
@@ -29,21 +28,21 @@ get_active_tickers_in_pa_query = text(
 
 class KalshiRepository(MarketRepository):
 
-    async def get_active_markets(self) -> List[Market]:
+    async def get_active_markets(self) -> list[Market]:
         query = select(Market).where(
             and_(Market.platform == market_platform, Market.close_time > func.now())
         )
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
-    async def get_active_tickers(self) -> List[str]:
+    async def get_active_tickers(self) -> list[str]:
         markets = await self.get_active_markets()
         return [
             market.platform_market_id for market in markets if market.platform_market_id
         ]
 
 
-    async def get_active_tickers_in_pairs(self) -> List[str]:
+    async def get_active_tickers_in_pairs(self) -> list[str]:
         query = get_active_tickers_in_pa_query
 
         result = await self.session.execute(query)
@@ -55,7 +54,7 @@ class KalshiSyncRepository:
         self.session = session
 
     def update_orderbook(
-        self, platform_market_id: str, orderbook: Dict[str, Any]
+        self, platform_market_id: str, orderbook: dict[str, Any]
     ) -> Market | None:
         market = (
             self.session.query(Market)

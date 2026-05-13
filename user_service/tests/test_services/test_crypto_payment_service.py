@@ -102,7 +102,7 @@ async def test_handle_webhook_credits_balance_on_finished(db: AsyncSession):
 
 async def test_handle_webhook_does_not_double_credit(db: AsyncSession):
     user = await make_user(db, email="wh2@test.com")
-    payment = await make_crypto_payment(
+    _payment = await make_crypto_payment(
         db, user_id=user.id, nowpayments_id="pay_wh2",
         price_amount=Decimal("50.00"), payment_status="finished",
     )

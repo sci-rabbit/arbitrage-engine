@@ -1,12 +1,10 @@
-from datetime import datetime, timedelta, UTC
-from typing import List
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from dto.user_subscription_dto import GrantSubscriptionDTO, ExtendSubscriptionDTO
+from dto.user_subscription_dto import ExtendSubscriptionDTO, GrantSubscriptionDTO
 from exceptions.user_subscription import UserSubscriptionNotFound
 from models.user_subscriptions import UserSubscription
-from repositrories.user_subscription_repository import UserSubscriptionRepository
 from services.user_subscription_service import UserSubscriptionService
 
 
@@ -33,7 +31,7 @@ class AdminUserSubscriptionService(UserSubscriptionService):
         user_id: int,
         limit: int = 50,
         offset: int = 0,
-    ) -> List[UserSubscription]:
+    ) -> list[UserSubscription]:
         return await self.user_sub_repo.get_all_by_user(
             user_id=user_id,
             limit=limit,

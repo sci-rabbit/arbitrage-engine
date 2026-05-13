@@ -1,11 +1,11 @@
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
 from pydantic import BaseModel
 
 
 class OrderbookOut(BaseModel):
     platform_market_id: str
-    orderbook: Optional[Dict[str, Any]] = None
+    orderbook: dict[str, Any] | None = None
     updated_at: datetime
 

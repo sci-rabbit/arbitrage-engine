@@ -1,4 +1,3 @@
-from typing import List
 
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,7 +9,7 @@ logger = structlog.getLogger(__name__)
 
 async def batch_commit(
     db_session: AsyncSession,
-    results: List[Market],
+    results: list[Market],
 ):
 
     if not results:

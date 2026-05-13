@@ -1,9 +1,9 @@
-from typing import Dict, Any, List
+from typing import Any
 
 
 def format_kalshi_orderbook(
-    api_response: Dict[str, Any],
-) -> Dict[str, Dict[str, List]] | None:
+    api_response: dict[str, Any],
+) -> dict[str, dict[str, list]] | None:
     """
     Kalshi orderbook normalizer.
 
@@ -38,7 +38,7 @@ def format_kalshi_orderbook(
     }
 
 
-def _normalize_book(entries: Any) -> List[Dict[str, str]]:
+def _normalize_book(entries: Any) -> list[dict[str, str]]:
     if not entries:
         return []
 
@@ -63,8 +63,8 @@ def _normalize_book(entries: Any) -> List[Dict[str, str]]:
 
 
 def _convert_bids_to_asks(
-    bids: List[Dict[str, str]],
-) -> List[Dict[str, str]]:
+    bids: list[dict[str, str]],
+) -> list[dict[str, str]]:
     asks = []
 
     for bid in bids:

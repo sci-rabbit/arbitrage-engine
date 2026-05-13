@@ -1,16 +1,14 @@
 import asyncio
-from typing import Dict, Any, List
+from typing import Any
 
 import structlog
 
 from core.config import settings
 from core.models.database import get_ro_session, get_rw_session
-from core.repositories.orderbook_repository import OrderbookAsyncRepository
 from core.orderbook_formatters.kalshi_formatter import format_kalshi_orderbook
 from core.repositories.kalshi_repository import KalshiRepository
-
+from core.repositories.orderbook_repository import OrderbookAsyncRepository
 from orderbook_service.kalshi.ws_worker import KalshiWSWorker
-
 
 log = structlog.get_logger(__name__)
 
@@ -22,11 +20,11 @@ class KalshiWSService:
         self.markets_refresh_interval = getattr(
             settings.ws_worker, "MARKETS_REFRESH_INTERVAL", 30
         )
-        self.active_tickers: List[str] = []
-        self.books_cents: Dict[str, Dict[str, List[List[float]]]] = {}
+        self.active_tickers: list[str] = []
+        self.books_cents: dict[str, dict[str, list[list[float]]]] = {}
         self._stop_event = asyncio.Event()
 
-    async def refresh_active_markets(self) -> List[str]:
+    async def refresh_active_markets(self) -> list[str]:
         try:
             async with get_ro_session() as session:
                 repo = KalshiRepository(session=session)
@@ -45,7 +43,7 @@ class KalshiWSService:
             )
             return self.active_tickers
 
-    def _apply_snapshot(self, ticker: str, yes: List[List[float]], no: List[List[float]]):
+    def _apply_snapshot(self, ticker: str, yes: list[list[float]], no: list[list[float]]):
         yes_levels = len(yes)
         no_levels = len(no)
         log.debug(
@@ -62,7 +60,7 @@ class KalshiWSService:
             "no": [[float(p), float(q)] for p, q in no],
         }
 
-    def _apply_delta(self, ticker: str, delta_msg: Dict[str, Any]):
+    def _apply_delta(self, ticker: str, delta_msg: dict[str, Any]):
         """
         Применяем дельту: price (в центах), delta (изменение контракта), side ('yes'/'no').
         Kalshi WS v2 шлёт price_dollars / delta_fp.
@@ -132,7 +130,7 @@ class KalshiWSService:
                         self._apply_snapshot(ticker, yes, no)
                     elif kind == "delta":
                         self._apply_delta(ticker, payload)
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     pass
 
                 while not updates_queue.empty():
@@ -149,7 +147,7 @@ class KalshiWSService:
                     continue
 
                 # нормализуем и шлём только те тикеры, по которым есть данные
-                batch: Dict[str, Dict[str, Any]] = {}
+                batch: dict[str, dict[str, Any]] = {}
                 for ticker, book in self.books_cents.items():
                     yes = book.get("yes") or []
                     no = book.get("no") or []

@@ -1,9 +1,9 @@
 import asyncio
 import logging
-import aiohttp
-import structlog
 import sys
 
+import aiohttp
+import structlog
 
 logging.basicConfig(
     level=logging.INFO,
@@ -34,10 +34,10 @@ from core.config import settings
 
 logging.getLogger().setLevel(getattr(logging, settings.log_level.upper(), logging.INFO))
 
+from core.market_parsers.semantic import build_semantic_text
+from core.markets_embedding.embedding_client import EmbeddingClient
 from core.models.database import get_ro_session
 from core.repositories.market_repository import MarketRepository
-from core.markets_embedding.embedding_client import EmbeddingClient
-from core.market_parsers.semantic import build_semantic_text
 
 logger = structlog.getLogger(__name__)
 
@@ -49,7 +49,7 @@ POLL_INTERVAL = settings.embedding.poll_interval
 async def process_market(market, aio_session, semaphore):
     async with semaphore:
         try:
-            texts: list[tuple[str, str]] = []   
+            texts: list[tuple[str, str]] = []
 
             if market.embedding is None and market.normalized_title:
                 texts.append(("title", market.normalized_title))

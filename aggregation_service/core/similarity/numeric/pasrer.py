@@ -1,5 +1,5 @@
 import re
-from typing import List, Optional
+
 from .models import NumericConstraint, Operator
 
 # # ====== Конфигурация ======
@@ -38,14 +38,14 @@ def verb_to_operator(verb: str) -> Operator:
     return Operator.EQ
 
 
-def parse_number(value: str, suffix: Optional[str]) -> float:
+def parse_number(value: str, suffix: str | None) -> float:
     return float(value.replace(",", "")) * MULTIPLIERS.get(suffix, 1)
 
 
-def parse_numeric_constraints(text: str) -> List[NumericConstraint]:
+def parse_numeric_constraints(text: str) -> list[NumericConstraint]:
     text = text.lower()
-    constraints: List[NumericConstraint] = []
-    covered_spans: List[tuple[int, int]] = []
+    constraints: list[NumericConstraint] = []
+    covered_spans: list[tuple[int, int]] = []
 
     pattern = rf"{NUMERIC_VERBS}\s*\$?{NUMBER_RE}"
     for match in re.finditer(pattern, text):
@@ -90,7 +90,7 @@ def parse_numeric_constraints(text: str) -> List[NumericConstraint]:
 
 
 def numeric_context_match(
-    a: List[NumericConstraint], b: List[NumericConstraint], tolerance: float = 0.0
+    a: list[NumericConstraint], b: list[NumericConstraint], tolerance: float = 0.0
 ) -> bool:
     for ca in a:
         for cb in b:

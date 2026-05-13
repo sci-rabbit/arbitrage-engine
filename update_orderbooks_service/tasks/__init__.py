@@ -1,5 +1,6 @@
-from celery import Celery
 import os
+
+from celery import Celery
 
 # Создаем экземпляр Celery приложения
 celery_app = Celery(
@@ -19,9 +20,10 @@ celery_app.conf.update(
 
 # Импортируем задачи, чтобы они зарегистрировались
 # Это нужно для того, чтобы @shared_task зарегистрировал задачи в celery_app
-from tasks import orderbooks  # noqa: F401, E402
-
 # Устанавливаем default app для @shared_task
 from celery import _state
+
+from tasks import orderbooks  # noqa: F401, E402
+
 _state.set_default_app(celery_app)
 

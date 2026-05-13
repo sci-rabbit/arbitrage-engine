@@ -1,4 +1,3 @@
-from typing import List
 
 import aiohttp
 import structlog
@@ -12,7 +11,7 @@ logger = structlog.getLogger(__name__)
 class EmbeddingClient:
     def __init__(
         self,
-        texts: List[str] | str,
+        texts: list[str] | str,
         aio_session: aiohttp.ClientSession,
     ):
         self.max_concurrent_requests = settings.embedding.max_concurrency
@@ -43,7 +42,7 @@ class EmbeddingClient:
 
         raise RuntimeError("WebSocket closed before TEXT message")
 
-    async def get_embeddings(self) -> List[List[float]] | None:
+    async def get_embeddings(self) -> list[list[float]] | None:
         try:
             result = await self._fetch_ws(self.texts)
 

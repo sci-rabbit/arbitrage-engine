@@ -1,5 +1,5 @@
 import asyncio
-from typing import List, Dict, Any, Optional
+from typing import Any
 
 import aiohttp
 import structlog
@@ -9,15 +9,13 @@ from core.config import settings
 from core.fetcher import GetFetcher
 from core.models.database import get_ro_session
 from core.orderbook_formatters.predictfun_formatter import format_predictfun_orderbook
-
-from tasks.orderbooks import update_orderbooks_task
-
 from core.repositories.predictfun_repository import PredictfunRepository
+from tasks.orderbooks import update_orderbooks_task
 
 log = structlog.get_logger(__name__)
 
 
-def _make_connector() -> Optional[ProxyConnector]:
+def _make_connector() -> ProxyConnector | None:
     proxy_url = getattr(settings.predict_fun, "proxy_url", None)
     if proxy_url:
         return ProxyConnector.from_url(proxy_url)
@@ -35,14 +33,14 @@ class PredictfunOrderbookService:
         self.batch_size = getattr(settings.ws_worker, "BATCH_SIZE", 20)
         self.max_concurrent_requests = 3
         self.headers = settings.predict_fun.get_headers()
-        self.active_tickers: List[str] = []
-        self.orderbooks_cache: Dict[str, Dict[str, Any]] = {}
+        self.active_tickers: list[str] = []
+        self.orderbooks_cache: dict[str, dict[str, Any]] = {}
         self._stop_event = asyncio.Event()
         self.fetcher = GetFetcher()
 
     async def fetch_orderbook(
         self, session: aiohttp.ClientSession, market_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Получить orderbook для одного маркета через Predict.fun API.
 
@@ -90,8 +88,8 @@ class PredictfunOrderbookService:
             return None
 
     async def fetch_orderbooks_batch(
-        self, session: aiohttp.ClientSession, market_ids: List[str]
-    ) -> Dict[str, Dict[str, Any]]:
+        self, session: aiohttp.ClientSession, market_ids: list[str]
+    ) -> dict[str, dict[str, Any]]:
         """
         Получить orderbooks для батча маркетов с ограничением concurrency.
 
@@ -128,7 +126,7 @@ class PredictfunOrderbookService:
 
         return orderbooks
 
-    async def refresh_active_markets(self) -> List[str]:
+    async def refresh_active_markets(self) -> list[str]:
         """
         Обновить список активных маркетов из БД.
 
@@ -241,7 +239,7 @@ class PredictfunOrderbookService:
                 )
 
     @staticmethod
-    def dispatch_to_celery(update_batch: Dict[str, Dict[str, Any]]):
+    def dispatch_to_celery(update_batch: dict[str, dict[str, Any]]):
         """
         Отправить батч обновлений orderbook в Celery.
 

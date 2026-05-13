@@ -1,9 +1,10 @@
 import re
-import structlog
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from core.market_parsers.utils import parse_dt
+import structlog
+
 from core.market_parsers.base_parser import BaseParser
+from core.market_parsers.utils import parse_dt
 
 logger = structlog.getLogger(__name__)
 
@@ -12,7 +13,7 @@ def _date_from_slug(slug: str):
     m = re.search(r'(\d{4}-\d{2}-\d{2})$', slug or "")
     if m:
         try:
-            return datetime.strptime(m.group(1), '%Y-%m-%d').replace(tzinfo=timezone.utc)
+            return datetime.strptime(m.group(1), '%Y-%m-%d').replace(tzinfo=UTC)
         except ValueError:
             pass
     return None

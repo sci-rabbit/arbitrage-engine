@@ -2,7 +2,7 @@
 Test data factories. Все функции делают flush (не commit) —
 роллбэк в db-фикстуре всё уберёт.
 """
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
 from sqlalchemy.ext.asyncio import AsyncSession

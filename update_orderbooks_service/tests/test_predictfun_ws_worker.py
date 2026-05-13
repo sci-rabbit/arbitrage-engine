@@ -5,10 +5,10 @@ No WebSocket, no DB — _handle_message is a pure async function that
 reads from data and optionally puts onto updates_queue.
 """
 import asyncio
+
 import pytest
 
 from orderbook_service.predictfun.ws_worker import PredictfunWSWorker
-
 
 # ---------------------------------------------------------------------------
 # Helper

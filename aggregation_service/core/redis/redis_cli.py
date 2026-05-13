@@ -1,18 +1,16 @@
-from typing import Optional
 
 import redis.asyncio as redis
 import structlog
 from redis.exceptions import (
     ConnectionError,
-    TimeoutError,
     RedisError,
+    TimeoutError,
 )
-
 from tenacity import (
     retry,
+    retry_if_exception_type,
     stop_after_attempt,
     wait_exponential_jitter,
-    retry_if_exception_type,
 )
 
 logger = structlog.getLogger(__name__)
@@ -35,7 +33,7 @@ class RedisService:
         health_check_interval: int = 30,
     ):
         self._url = url
-        self._redis: Optional[redis.Redis] = None
+        self._redis: redis.Redis | None = None
 
         self._pool = redis.ConnectionPool.from_url(
             url,
@@ -75,7 +73,7 @@ class RedisService:
         wait=wait_exponential_jitter(initial=0.2, max=5),
         reraise=True,
     )
-    async def get(self, key: str) -> Optional[bytes]:
+    async def get(self, key: str) -> bytes | None:
         return await self._client().get(key)
 
     @retry(
@@ -89,7 +87,7 @@ class RedisService:
         key: str,
         value: bytes,
         *,
-        ex: Optional[int] = None,
+        ex: int | None = None,
     ) -> bool:
         return await self._client().set(key, value, ex=ex)
 

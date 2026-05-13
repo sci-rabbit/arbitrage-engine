@@ -1,5 +1,4 @@
-from datetime import datetime, UTC
-from typing import List
+from datetime import UTC, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -28,7 +27,7 @@ class UserSubscriptionService:
         user_id: int,
         limit: int = 50,
         offset: int = 0,
-    ) -> List[UserSubscription]:
+    ) -> list[UserSubscription]:
         now = datetime.now(UTC)
         return await self.user_sub_repo.get_all_active(
             user_id=user_id,

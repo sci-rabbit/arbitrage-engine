@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from repositrories.user_repository import UserRepository
 from tests.factories import make_user
 
-
 # ---------------------------------------------------------------------------
 # get
 # ---------------------------------------------------------------------------

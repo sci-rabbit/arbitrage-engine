@@ -4,11 +4,11 @@ Tests for PolymarketWSWorker and WSManager (pure in-memory logic).
 No WebSocket, no DB — all IO is replaced by asyncio.Queue mocks.
 """
 import asyncio
+from unittest.mock import AsyncMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock
 
 from orderbook_service.polymarket.ws import PolymarketWSWorker, WSManager
-
 
 # ---------------------------------------------------------------------------
 # Helpers

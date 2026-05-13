@@ -1,5 +1,5 @@
 import asyncio
-from typing import List, Dict, Any, Optional
+from typing import Any
 
 import aiohttp
 import structlog
@@ -7,20 +7,17 @@ from aiohttp_socks import ProxyConnector
 
 from core.config import settings
 from core.fetcher import GetFetcher
+from core.models.database import get_ro_session
+from core.orderbook_formatters.kalshi_formatter import format_kalshi_orderbook
 from core.repositories.kalshi_repository import (
     KalshiRepository,
 )
-from core.models.database import get_ro_session
-
-from core.orderbook_formatters.kalshi_formatter import format_kalshi_orderbook
-
-
 from tasks.orderbooks import update_orderbooks_task
 
 log = structlog.get_logger(__name__)
 
 
-def _make_connector() -> Optional[ProxyConnector]:
+def _make_connector() -> ProxyConnector | None:
     proxy_url = getattr(settings.kalshi, "proxy_url", None)
     if proxy_url:
         return ProxyConnector.from_url(proxy_url)
@@ -29,7 +26,7 @@ def _make_connector() -> Optional[ProxyConnector]:
 class KalshiOrderbookService:
     def __init__(self):
         self.base_url = settings.kalshi.url.replace("/markets", "")
-        self.path = f"/markets/{{ticker}}/orderbook"
+        self.path = "/markets/{ticker}/orderbook"
         self.orderbook_url_template = self.base_url + self.path
         self.poll_interval = getattr(settings.ws_worker, "UPDATE_INTERVAL", 5)
         self.markets_refresh_interval = getattr(
@@ -38,14 +35,14 @@ class KalshiOrderbookService:
         self.batch_size = getattr(settings.ws_worker, "BATCH_SIZE", 20)
         self.max_concurrent_requests = settings.kalshi.max_concurrency
         self.headers = settings.kalshi.get_headers(path=self.path)
-        self.active_tickers: List[str] = []
-        self.orderbooks_cache: Dict[str, Dict[str, Any]] = {}
+        self.active_tickers: list[str] = []
+        self.orderbooks_cache: dict[str, dict[str, Any]] = {}
         self._stop_event = asyncio.Event()
         self.fetcher = GetFetcher()
 
     async def fetch_orderbook(
         self, session: aiohttp.ClientSession, ticker: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         url = self.orderbook_url_template.format(ticker=ticker)
 
         try:
@@ -83,8 +80,8 @@ class KalshiOrderbookService:
             return None
 
     async def fetch_orderbooks_batch(
-        self, session: aiohttp.ClientSession, tickers: List[str]
-    ) -> Dict[str, Dict[str, Any]]:
+        self, session: aiohttp.ClientSession, tickers: list[str]
+    ) -> dict[str, dict[str, Any]]:
         """
         Получить orderbooks для батча маркетов с ограничением concurrency.
 
@@ -121,7 +118,7 @@ class KalshiOrderbookService:
 
         return orderbooks
 
-    async def refresh_active_markets(self) -> List[str]:
+    async def refresh_active_markets(self) -> list[str]:
         """
         Обновить список активных маркетов из БД.
 
@@ -221,7 +218,7 @@ class KalshiOrderbookService:
                 )
 
     @staticmethod
-    def dispatch_to_celery(update_batch: Dict[str, Dict[str, Any]]):
+    def dispatch_to_celery(update_batch: dict[str, dict[str, Any]]):
         """
         Отправить батч обновлений orderbook в Celery.
 

@@ -4,7 +4,6 @@ Tests for KalshiWSService._apply_snapshot and _apply_delta.
 Both methods are pure in-memory state transitions on self.books_cents —
 no DB, no network needed.
 """
-import pytest
 
 from orderbook_service.kalshi.ws_service import KalshiWSService
 

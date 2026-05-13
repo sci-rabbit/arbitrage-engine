@@ -1,12 +1,12 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.deps import require
-from core.database import get_rw_session, get_ro_session
+from core.database import get_ro_session, get_rw_session
 from dto.user_dto import UpdateUserDTO
-from schemas.user import UserResponse, UpdateUserRequest
+from schemas.user import UpdateUserRequest, UserResponse
 from services.user.admin_user_service import AdminUserService
 
 router = APIRouter(
@@ -24,7 +24,7 @@ async def list_users(
     session: ROSession,
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
-) -> List[UserResponse]:
+) -> list[UserResponse]:
     return await AdminUserService(session).list(limit=limit, offset=offset)
 
 
@@ -34,7 +34,7 @@ async def search_users(
     q: str = Query(min_length=1),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
-) -> List[UserResponse]:
+) -> list[UserResponse]:
     return await AdminUserService(session).search(q, limit=limit, offset=offset)
 
 

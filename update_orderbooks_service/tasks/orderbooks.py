@@ -1,5 +1,5 @@
-from celery import shared_task
 import structlog
+from celery import shared_task
 
 from core.models.database import get_sync_rw_session
 from core.repositories.orderbook_repository import OrderbookSyncRepository

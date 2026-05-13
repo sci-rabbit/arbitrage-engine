@@ -1,5 +1,5 @@
-from sqlalchemy import text
 from core.database import context_manager_get_ro_session
+from sqlalchemy import text
 
 
 async def find_top5_cross_platform_fast():
@@ -78,7 +78,7 @@ async def find_top5_cross_platform_fast():
             b_description,
             b_embedding,
             b_semantic_embedding,
-    
+
             min_distance
         FROM ranked
         WHERE rn_b = 1                          -- 🔒 один b → одна пара

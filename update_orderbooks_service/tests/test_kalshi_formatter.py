@@ -1,11 +1,10 @@
 import pytest
 
 from core.orderbook_formatters.kalshi_formatter import (
-    format_kalshi_orderbook,
-    _normalize_book,
     _convert_bids_to_asks,
+    _normalize_book,
+    format_kalshi_orderbook,
 )
-
 
 # ---------------------------------------------------------------------------
 # _normalize_book

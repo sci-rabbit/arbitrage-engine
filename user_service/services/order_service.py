@@ -1,4 +1,3 @@
-from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,7 +24,7 @@ class OrderService:
         user_id: int,
         limit: int = 50,
         offset: int = 0,
-    ) -> List[Order]:
+    ) -> list[Order]:
         return await self.order_repo.paginate(
             limit=limit,
             offset=offset,

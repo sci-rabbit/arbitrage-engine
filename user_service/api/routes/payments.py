@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.deps import CurrentUser
 from core.config import settings
-from core.database import get_rw_session, get_ro_session
+from core.database import get_ro_session, get_rw_session
 from schemas.payment import CreatePaymentRequest, PaymentResponse
 from services.crypto_payment_service import CryptoPaymentService
 

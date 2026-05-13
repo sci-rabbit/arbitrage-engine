@@ -1,15 +1,13 @@
 import asyncio
-from typing import Dict, Any, List
+from typing import Any
 
 import structlog
 
 from core.config import settings
 from core.models.database import get_ro_session, get_rw_session
-from core.repositories.predictfun_repository import PredictfunRepository
 from core.repositories.orderbook_repository import OrderbookAsyncRepository
-
+from core.repositories.predictfun_repository import PredictfunRepository
 from orderbook_service.predictfun.ws_worker import PredictfunWSWorker
-
 
 log = structlog.get_logger(__name__)
 
@@ -29,11 +27,11 @@ class PredictfunWSService:
         self.markets_refresh_interval = getattr(
             settings.ws_worker, "MARKETS_REFRESH_INTERVAL", 30
         )
-        self.active_market_ids: List[str] = []
-        self.orderbooks_cache: Dict[str, Dict[str, Any]] = {}
+        self.active_market_ids: list[str] = []
+        self.orderbooks_cache: dict[str, dict[str, Any]] = {}
         self._stop_event = asyncio.Event()
 
-    async def refresh_active_markets(self) -> List[str]:
+    async def refresh_active_markets(self) -> list[str]:
         try:
             async with get_ro_session() as session:
                 repo = PredictfunRepository(session=session)
@@ -64,7 +62,7 @@ class PredictfunWSService:
                         updates_queue.get(), timeout=self.poll_interval
                     )
                     self.orderbooks_cache[market_id] = orderbook
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     pass
 
                 # сгребаем всё, что накопилось в очереди

@@ -7,7 +7,6 @@ from exceptions.user import UserAlreadyExists, UserNotFound
 from services.user.user_service import UserService
 from tests.factories import make_user
 
-
 # ---------------------------------------------------------------------------
 # create
 # ---------------------------------------------------------------------------

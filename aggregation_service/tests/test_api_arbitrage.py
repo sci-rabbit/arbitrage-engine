@@ -1,7 +1,7 @@
 """Tests for the /arbitrage API routes."""
-import orjson
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import orjson
 import redis.exceptions
 from fastapi import FastAPI
 from fastapi.testclient import TestClient

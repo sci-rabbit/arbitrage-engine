@@ -5,11 +5,11 @@ Strategy: mock get_sync_rw_session and OrderbookSyncRepository,
 call task.run() directly (bind=True — self is already bound to the task instance).
 Retry behaviour is tested by patching update_orderbooks_task.retry.
 """
-import pytest
 from unittest.mock import MagicMock, patch
 
-from tasks.orderbooks import update_orderbooks_task
+import pytest
 
+from tasks.orderbooks import update_orderbooks_task
 
 # ---------------------------------------------------------------------------
 # Helpers

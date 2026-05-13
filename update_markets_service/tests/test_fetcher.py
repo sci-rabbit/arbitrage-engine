@@ -1,6 +1,7 @@
 """Tests for GetFetcher.fetch_json."""
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 from aiohttp import ClientResponseError
 
 from core.load_markets.fetcher import GetFetcher, RateLimitError

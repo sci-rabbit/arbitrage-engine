@@ -4,8 +4,8 @@ import sys
 from pathlib import Path
 
 import sentry_sdk
-from sentry_sdk.integrations.asyncio import AsyncioIntegration
 import structlog
+from sentry_sdk.integrations.asyncio import AsyncioIntegration
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -36,9 +36,8 @@ from core.models.database import get_ro_session
 logging.getLogger().setLevel(getattr(logging, settings.log_level.upper(), logging.INFO))
 from core.repositories.poly_repository import PolymarketRepository
 from orderbook_service.kalshi.ws_service import KalshiWSService
-from orderbook_service.predictfun.ws_service import PredictfunWSService
 from orderbook_service.polymarket.ws import WSManager
-
+from orderbook_service.predictfun.ws_service import PredictfunWSService
 
 log = structlog.get_logger(__name__)
 

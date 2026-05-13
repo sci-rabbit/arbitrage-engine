@@ -1,6 +1,6 @@
 import asyncio
-from datetime import datetime, timezone
-from typing import Dict, Any
+from datetime import UTC, datetime
+from typing import Any
 
 import aiohttp
 import structlog
@@ -48,8 +48,8 @@ class KalshiLoaderService:
         self.existing_markets_map = {}
 
     async def _process_market(
-        self, raw_market: Dict[str, Any]
-    ) -> Dict[str, Any] | None:
+        self, raw_market: dict[str, Any]
+    ) -> dict[str, Any] | None:
         market_id = str(raw_market.get("ticker"))
         status = raw_market.get("status", "")
 
@@ -66,11 +66,11 @@ class KalshiLoaderService:
 
         if status not in ("open", "active"):
             return None
-            
+
         close_time = raw_market.get("close_time")
         if close_time:
             close_time = datetime.fromisoformat(close_time.replace("Z", "+00:00"))
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
 
             if close_time <= now:
                 return None

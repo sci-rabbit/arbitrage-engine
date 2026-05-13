@@ -1,9 +1,8 @@
 """Tests for aggregate (weighted sum) and cosine similarity."""
 import numpy as np
-import pytest
+
 from services.similarity_service.aggregation.weighted_sum import aggregate
 from services.similarity_service.utils import cosine, parse_embedding
-
 
 # ---------------------------------------------------------------------------
 # aggregate

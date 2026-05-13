@@ -3,17 +3,16 @@ from concurrent.futures import ProcessPoolExecutor
 
 import orjson
 import structlog
-from typing import List
 
 from core.config import settings
+from core.models.database import get_rw_session
 from core.redis.redis_cli import RedisService
 from core.repositories.orderbook_repository import OrderbookRepository
 from core.repositories.pair_repository import PairRepository
-from core.schemas.arbitrage import ArbitrageResult, ArbitrageOpportunity
+from core.schemas.arbitrage import ArbitrageOpportunity, ArbitrageResult
 from core.schemas.markets import MarketShort
 from core.utils import generate_market_url
 from services.arbitrage import check_arbitrage
-from core.models.database import get_rw_session
 
 logger = structlog.getLogger(__name__)
 
@@ -99,7 +98,7 @@ class ArbitrageTask:
             )
             orderbooks_map = {ob.platform_market_id: ob for ob in orderbooks_list}
 
-        results: List[ArbitrageResult] = []
+        results: list[ArbitrageResult] = []
 
         loop = asyncio.get_running_loop()
 

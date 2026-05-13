@@ -1,6 +1,6 @@
 import asyncio
-from datetime import datetime, timezone
-from typing import Dict, Any
+from datetime import UTC, datetime
+from typing import Any
 
 import aiohttp
 import structlog
@@ -41,7 +41,7 @@ class PolymarketLoaderService:
 
         self.existing_markets_map = {}
 
-    def _process_market(self, raw_market: Dict[str, Any]) -> Dict[str, Any] | None:
+    def _process_market(self, raw_market: dict[str, Any]) -> dict[str, Any] | None:
         market_id = str(raw_market.get("id"))
         closed = raw_market.get("closed", False)
 
@@ -57,7 +57,7 @@ class PolymarketLoaderService:
                     return None
         if closed:
             return None
-            
+
         prices = raw_market.get("outcomePrices")
         if prices and len(prices) == 2:
             yes = float(prices[0])
@@ -69,7 +69,7 @@ class PolymarketLoaderService:
         close_time = raw_market.get("endDate")
         if close_time:
             close_time = datetime.fromisoformat(close_time.replace("Z", "+00:00"))
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
 
             if close_time <= now:
                 return None
@@ -113,7 +113,7 @@ class PolymarketLoaderService:
                 to_commit = [
                     result["market"] for result in results if result["action"] == "save"
                 ]
-                to_delete = [
+                _to_delete = [
                     result["market_id"]
                     for result in results
                     if result["action"] == "delete"

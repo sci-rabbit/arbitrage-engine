@@ -6,7 +6,6 @@ import sentry_sdk
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
-
 logging.basicConfig(
     level=logging.INFO,
     stream=sys.stderr,
@@ -37,12 +36,12 @@ from core.config import settings
 
 logging.getLogger().setLevel(getattr(logging, settings.log_level.upper(), logging.INFO))
 
-from core.repositories.invalid_pairs_repository import InvalidPairRepository
-from services.similarity_service.channels.semantic import SemanticChannel
-from services.similarity_service.channels.title import TitleChannel
 from core.models.database import context_manager_get_ro_session
+from core.repositories.invalid_pairs_repository import InvalidPairRepository
 from core.repositories.market_repository import MarketRepository
 from services.pair_generation_service.service import PairGenerationService
+from services.similarity_service.channels.semantic import SemanticChannel
+from services.similarity_service.channels.title import TitleChannel
 from services.similarity_service.service import MarketSimilarityService
 
 logger = structlog.getLogger(__name__)

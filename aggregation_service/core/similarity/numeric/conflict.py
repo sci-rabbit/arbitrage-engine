@@ -1,5 +1,5 @@
 # conflict.py
-from typing import List
+
 from .models import NumericConstraint, Operator
 
 
@@ -28,7 +28,7 @@ def operators_conflict(a: NumericConstraint, b: NumericConstraint, tolerance: fl
         if _looks_like_year(a.value) != _looks_like_year(b.value):
             return False
         return a.value != b.value
-    
+
     # Если оба оператора одного типа, проверяем на значительное расхождение
     # (например, "above 100k" vs "above 150k" - слишком разные пороги)
     if a.operator == b.operator:
@@ -39,11 +39,11 @@ def operators_conflict(a: NumericConstraint, b: NumericConstraint, tolerance: fl
             # Но только если это не близкие значения (например, 100k vs 105k - ок, но 100k vs 150k - конфликт)
             if relative_diff > tolerance:
                 return True
-    
+
     return False
 
 
-def numeric_conflict(a: List[NumericConstraint], b: List[NumericConstraint]) -> bool:
+def numeric_conflict(a: list[NumericConstraint], b: list[NumericConstraint]) -> bool:
     """
     Проверяет, есть ли хотя бы один конфликт между двумя списками числовых ограничений
     """

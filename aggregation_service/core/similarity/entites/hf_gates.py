@@ -1,7 +1,6 @@
 # core/similarity/entities/hf_gate.py
 
 import re
-from typing import List, Tuple
 
 import structlog
 from rapidfuzz import fuzz
@@ -20,14 +19,14 @@ CRITICAL_ENTITIES = {
 }
 
 # Process-level NER cache: normalized_title -> list of (entity, label) tuples
-_ner_cache: dict[str, List[Tuple[str, str]]] = {}
+_ner_cache: dict[str, list[tuple[str, str]]] = {}
 
 
 def normalize_text(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip().lower()
 
 
-def _parse_ner_doc(doc) -> List[Tuple[str, str]]:
+def _parse_ner_doc(doc) -> list[tuple[str, str]]:
     return list(
         {
             (normalize_text(ent["word"]), ent["entity_group"])
@@ -37,7 +36,7 @@ def _parse_ner_doc(doc) -> List[Tuple[str, str]]:
     )
 
 
-def extract_entities_hf(text: str) -> List[Tuple[str, str]]:
+def extract_entities_hf(text: str) -> list[tuple[str, str]]:
     key = (text or "")[:1000]
     if key in _ner_cache:
         return _ner_cache[key]
@@ -48,7 +47,7 @@ def extract_entities_hf(text: str) -> List[Tuple[str, str]]:
     return ents
 
 
-def extract_entities_hf_batch(texts: List[str]) -> List[List[Tuple[str, str]]]:
+def extract_entities_hf_batch(texts: list[str]) -> list[list[tuple[str, str]]]:
     keys = [(t or "")[:1000] for t in texts]
 
     # Collect unique texts not yet in cache
@@ -95,16 +94,16 @@ def entity_match_score(text1: str, text2: str) -> float:
 
 
 def entity_match_scores(
-    text_pairs: List[Tuple[str, str]],
-) -> List[float]:
-    flat_texts: List[str] = []
+    text_pairs: list[tuple[str, str]],
+) -> list[float]:
+    flat_texts: list[str] = []
     for t1, t2 in text_pairs:
         flat_texts.append((t1 or "")[:1000])
         flat_texts.append((t2 or "")[:1000])
 
     flat_entities = extract_entities_hf_batch(flat_texts)
 
-    scores: List[float] = []
+    scores: list[float] = []
 
     for i in range(0, len(flat_entities), 2):
         ents1 = flat_entities[i]

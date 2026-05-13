@@ -1,11 +1,10 @@
 import structlog
 
-from core.market_parsers.utils import (
-    string_to_json,
-    parse_dt,
-)
-
 from core.market_parsers.base_parser import BaseParser
+from core.market_parsers.utils import (
+    parse_dt,
+    string_to_json,
+)
 
 logger = structlog.getLogger(__name__)
 

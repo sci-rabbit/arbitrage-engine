@@ -1,7 +1,5 @@
 """Tests for arbitrage pure functions: normalize_asks, cheapest_ask, calc_depth_arbitrage, check_arbitrage."""
-import pytest
-from services.arbitrage import normalize_asks, cheapest_ask, calc_depth_arbitrage, check_arbitrage
-
+from services.arbitrage import calc_depth_arbitrage, cheapest_ask, check_arbitrage, normalize_asks
 
 # ---------------------------------------------------------------------------
 # normalize_asks

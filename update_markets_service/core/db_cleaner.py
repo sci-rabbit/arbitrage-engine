@@ -1,11 +1,10 @@
 import asyncio
+
 from sqlalchemy import delete, func, text
 from sqlalchemy.dialects.postgresql import array
 
-from core.models import Market
-from core.models import Pair
+from core.models import Market, Pair
 from core.models.database import get_rw_session
-
 
 ORPHAN_PAIRS_SQL = """
 DELETE FROM pairs p

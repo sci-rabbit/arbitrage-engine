@@ -1,9 +1,9 @@
-from typing import Dict, Any, List
+from typing import Any
 
 
 def format_predictfun_orderbook(
-    api_response: Dict[str, Any],
-) -> Dict[str, Dict[str, List]] | None:
+    api_response: dict[str, Any],
+) -> dict[str, dict[str, list]] | None:
     """
     Predict.fun orderbook normalizer.
 
@@ -21,10 +21,10 @@ def format_predictfun_orderbook(
     The orderbook stores prices based on the `Yes` outcome.
     For `No` outcome: price_no = 1 - price_yes
     """
-    
+
     if not api_response.get("success"):
         return None
-    
+
     data = api_response.get("data", {})
     if not data:
         return None
@@ -44,14 +44,14 @@ def format_predictfun_orderbook(
     }
 
 
-def _normalize_bids(entries: Any) -> List[Dict[str, str]]:
+def _normalize_bids(entries: Any) -> list[dict[str, str]]:
     """
     Нормализует bids записи orderbook (сортировка от высокой цены к низкой).
     """
     if not entries:
         return []
 
-    normalized: List[Dict[str, str]] = []
+    normalized: list[dict[str, str]] = []
     for entry in entries:
         if isinstance(entry, (list, tuple)) and len(entry) >= 2:
             try:
@@ -69,14 +69,14 @@ def _normalize_bids(entries: Any) -> List[Dict[str, str]]:
     return normalized
 
 
-def _normalize_asks(entries: Any) -> List[Dict[str, str]]:
+def _normalize_asks(entries: Any) -> list[dict[str, str]]:
     """
     Нормализует asks записи orderbook (сортировка от низкой цены к высокой).
     """
     if not entries:
         return []
 
-    normalized: List[Dict[str, str]] = []
+    normalized: list[dict[str, str]] = []
     for entry in entries:
         if isinstance(entry, (list, tuple)) and len(entry) >= 2:
             try:
@@ -95,13 +95,13 @@ def _normalize_asks(entries: Any) -> List[Dict[str, str]]:
 
 
 def _convert_bids_to_asks(
-    bids: List[Dict[str, str]],
-) -> List[Dict[str, str]]:
+    bids: list[dict[str, str]],
+) -> list[dict[str, str]]:
     """
     Конвертирует bids в asks: price_ask = 1 - price_bid
     Сортировка от низкой цены к высокой (best ask first).
     """
-    asks: List[Dict[str, str]] = []
+    asks: list[dict[str, str]] = []
     for bid in bids:
         price_bid = float(bid["price"])
         price_ask = 1.0 - price_bid
@@ -116,13 +116,13 @@ def _convert_bids_to_asks(
 
 
 def _convert_asks_to_bids(
-    asks: List[Dict[str, str]],
-) -> List[Dict[str, str]]:
+    asks: list[dict[str, str]],
+) -> list[dict[str, str]]:
     """
     Конвертирует asks в bids: price_bid = 1 - price_ask
     Сортировка от высокой цены к низкой (best bid first).
     """
-    bids: List[Dict[str, str]] = []
+    bids: list[dict[str, str]] = []
     for ask in asks:
         price_ask = float(ask["price"])
         price_bid = 1.0 - price_ask

@@ -1,15 +1,11 @@
-from typing import List, Tuple
+
 import structlog
 
 from core import Market
 from core.similarity.entites.client import share_key_entities
-
 from core.similarity.entites.hf_gates import entity_match_score, entity_match_scores
-
 from core.similarity.numeric.client import get_numeric_result
-
 from core.similarity.temporal.client import get_temporal_similarity
-
 
 logger = structlog.getLogger(__name__)
 
@@ -54,14 +50,14 @@ BATCH_SIZE = 200
 
 
 def hard_gate_batch(
-    pairs: List[Tuple[Market, Market]],
-) -> List[bool]:
+    pairs: list[tuple[Market, Market]],
+) -> list[bool]:
     """
     Batched hard gate with per-batch and global logging.
     Preserves input order.
     """
 
-    results: List[bool] = []
+    results: list[bool] = []
 
     total_pairs = len(pairs)
     total_passed = 0

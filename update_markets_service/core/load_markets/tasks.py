@@ -1,6 +1,6 @@
 import asyncio
-from collections.abc import Callable, Awaitable
-from typing import List, Any, Dict
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 import structlog
 
@@ -9,7 +9,7 @@ from core.models import Market
 logger = structlog.getLogger(__name__)
 
 
-def results_handler(result: List[Any]) -> List[Any]:
+def results_handler(result: list[Any]) -> list[Any]:
     clear_results = []
     for r in result:
         if r is None:
@@ -28,13 +28,13 @@ def results_handler(result: List[Any]) -> List[Any]:
 
 
 async def async_process_tasks(
-    markets_raw: List[Dict[str, Any]],
+    markets_raw: list[dict[str, Any]],
     process_market: Callable[..., Awaitable[Market | None]],
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     tasks = [
         asyncio.create_task(process_market(market_raw)) for market_raw in markets_raw
     ]
-    results: List[Market | None] = await asyncio.gather(
+    results: list[Market | None] = await asyncio.gather(
         *tasks,
         return_exceptions=True,
     )
@@ -43,10 +43,10 @@ async def async_process_tasks(
 
 
 def process_tasks(
-    markets_raw: List[Dict[str, Any]],
+    markets_raw: list[dict[str, Any]],
     process_market: Callable[[Any], Any],
-) -> List[Dict[str, Any]]:
-    results: List[Dict[str, Any]] = [
+) -> list[dict[str, Any]]:
+    results: list[dict[str, Any]] = [
         process_market(market_raw) for market_raw in markets_raw
     ]
 

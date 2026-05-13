@@ -1,19 +1,15 @@
+
 import orjson
-import structlog
 import redis.exceptions
-
-from typing import List
-
+import structlog
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.models.database import get_ro_session
-
 from api.deps import require_access
-from core.repositories.pair_repository import PairRepository
+from core.models.database import get_ro_session
 from core.repositories.orderbook_repository import OrderbookRepository
-from core.repositories.market_repository import MarketRepository
-from core.schemas.arbitrage import ArbitrageResult, ArbitrageOpportunity
+from core.repositories.pair_repository import PairRepository
+from core.schemas.arbitrage import ArbitrageOpportunity, ArbitrageResult
 from core.schemas.markets import MarketShort
 from core.utils.url_generator import generate_market_url
 from services.arbitrage import check_arbitrage
@@ -22,14 +18,14 @@ logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/arbitrage", tags=["arbitrage"])
 
 
-@router.get("/scan", response_model=List[ArbitrageResult])
+@router.get("/scan", response_model=list[ArbitrageResult])
 async def scan_arbitrage(
     price_threshold: float = Query(0.97),
     min_size: float = Query(25),
     threshold_distance: float = Query(0.7),
     threshold_final_score: float = Query(0.7),
     db_session: AsyncSession = Depends(get_ro_session),
-) -> List[ArbitrageResult]:
+) -> list[ArbitrageResult]:
     logger.info(
         "arbitrage_scan_started", price_threshold=price_threshold, min_size=min_size
     )
@@ -52,7 +48,7 @@ async def scan_arbitrage(
     orderbooks_list = await orderbook_repo.get_by_platform_market_ids(list(market_ids))
     orderbooks_map = {ob.platform_market_id: ob for ob in orderbooks_list}
 
-    results: List[ArbitrageResult] = []
+    results: list[ArbitrageResult] = []
 
     for pair_obj, markets in pairs_with_markets:
         if len(markets) < 2:
@@ -173,7 +169,7 @@ async def get_arbitrage_stats(request: Request):
 
 
 @router.get("/scan_cache", dependencies=[Depends(require_access)])
-async def scan_arbitrage_cache(request: Request) -> List[ArbitrageResult]:
+async def scan_arbitrage_cache(request: Request) -> list[ArbitrageResult]:
     redis_service = request.app.state.redis_service
     try:
         raw = await redis_service.get("arb:global")
@@ -185,14 +181,14 @@ async def scan_arbitrage_cache(request: Request) -> List[ArbitrageResult]:
     return orjson.loads(raw)
 
 
-@router.get("/compute", response_model=List[ArbitrageOpportunity])
+@router.get("/compute", response_model=list[ArbitrageOpportunity])
 async def compute_arbitrage(
     platform_market_id_a: str,
     platform_market_id_b: str,
     price_threshold: float = Query(0.97),
     min_size: float = Query(25),
     db_session: AsyncSession = Depends(get_ro_session),
-) -> List[ArbitrageOpportunity]:
+) -> list[ArbitrageOpportunity]:
     """
     Compute arbitrage opportunities between two specific markets by platform_market_id.
     Returns only arbitrage legs (no pair metadata).

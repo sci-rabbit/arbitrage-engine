@@ -1,10 +1,10 @@
 """Tests for MarketService dispatch and platform-specific services."""
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from services.market_service.service import MarketService
 from services.market_service.service_storage import services_storage
-
 
 # ---------------------------------------------------------------------------
 # MarketService dispatch

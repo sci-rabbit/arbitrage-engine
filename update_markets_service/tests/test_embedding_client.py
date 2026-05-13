@@ -1,6 +1,7 @@
 """Tests for EmbeddingClient.get_embeddings."""
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 from core.markets_embedding.embedding_client import EmbeddingClient
 

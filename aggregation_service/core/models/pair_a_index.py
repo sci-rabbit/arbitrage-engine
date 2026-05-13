@@ -1,7 +1,6 @@
+from common.models.base import Base
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
-
-from common.models.base import Base
 
 
 class PairAIndex(Base):

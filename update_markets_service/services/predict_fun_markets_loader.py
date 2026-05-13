@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict, Any
+from typing import Any
 
 import aiohttp
 import structlog
@@ -40,7 +40,7 @@ class PredictFunLoaderService:
 
         self.existing_markets_map = {}
 
-    def _process_market(self, raw_market: Dict[str, Any]) -> Dict[str, Any] | None:
+    def _process_market(self, raw_market: dict[str, Any]) -> dict[str, Any] | None:
         market_id = str(raw_market.get("id"))
         status = raw_market.get("status", "").upper()
 

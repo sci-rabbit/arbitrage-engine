@@ -1,4 +1,3 @@
-from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -46,7 +45,7 @@ class UserTransactionService:
         user_id: int,
         limit: int = 50,
         offset: int = 0,
-    ) -> List[UserTransaction]:
+    ) -> list[UserTransaction]:
         return await self.transaction_repo.get_by_user_id(
             user_id=user_id,
             limit=limit,

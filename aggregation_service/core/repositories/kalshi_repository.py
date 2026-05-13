@@ -1,4 +1,3 @@
-from typing import List
 
 from sqlalchemy import select
 
@@ -8,7 +7,7 @@ from core.repositories.market_repository import MarketRepository
 
 class KalshiRepository(MarketRepository):
 
-    async def search(self, common_id: str) -> List[Market]:
+    async def search(self, common_id: str) -> list[Market]:
         query = (
             select(Market)
             .where(Market.event_id == common_id)

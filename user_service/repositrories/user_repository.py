@@ -1,7 +1,6 @@
-from typing import List
 
 import structlog
-from sqlalchemy import select, or_
+from sqlalchemy import or_, select
 
 from models.user import User
 from repositrories.base_repository import AsyncRepository
@@ -22,7 +21,7 @@ class UserRepository(AsyncRepository[User]):
         query: str,
         limit: int = 50,
         offset: int = 0,
-    ) -> List[User]:
+    ) -> list[User]:
         stmt = (
             select(User)
             .where(

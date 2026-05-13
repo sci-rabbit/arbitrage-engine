@@ -1,7 +1,5 @@
 """Tests for normalize_prices and should_skip_market."""
-import pytest
 from core.load_markets.loaders.utils import normalize_prices, should_skip_market
-
 
 # ---------------------------------------------------------------------------
 # normalize_prices

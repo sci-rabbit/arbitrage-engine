@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,7 +22,7 @@ async def list_user_orders(
     session: ROSession,
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
-) -> List[OrderResponse]:
+) -> list[OrderResponse]:
     return await OrderService(session).list_by_user(
         user_id=user_id,
         limit=limit,

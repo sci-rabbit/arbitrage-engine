@@ -1,8 +1,8 @@
 import asyncio
-from typing import Dict, Any, List
+from typing import Any
 
 import aiohttp
-from aiohttp import ClientTimeout, ClientResponseError
+from aiohttp import ClientResponseError, ClientTimeout
 from tenacity import (
     retry,
     retry_if_exception_type,
@@ -10,7 +10,7 @@ from tenacity import (
     wait_exponential_jitter,
 )
 
-Json = Dict[str, Any] | List[Dict[str, Any]] | List[Any]
+Json = dict[str, Any] | list[dict[str, Any]] | list[Any]
 
 
 RETRY_EXCEPTIONS = (

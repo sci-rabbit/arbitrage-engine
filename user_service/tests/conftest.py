@@ -5,25 +5,24 @@ DB isolation  — каждый тест оборачивается в транз
 Rate limiting — RateLimiter.__call__ заменён no-op (autouse).
 Redis         — lifespan получает fakeredis вместо реального Redis.
 """
-import pytest
-import pytest_asyncio
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 from unittest.mock import patch
 
 import fakeredis.aioredis
+import pytest
+import pytest_asyncio
 from fastapi import Request
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import (
-    create_async_engine,
-    async_sessionmaker,
     AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
 )
 from sqlalchemy.pool import StaticPool
 from starlette.responses import Response as StarletteResponse
 
-import models  # noqa: F401— регистрирует все модели в Base.metadata
+from core.database import get_ro_session, get_rw_session
 from main import app
-from core.database import get_rw_session, get_ro_session
 from models.base import Base
 
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
@@ -83,9 +82,10 @@ def disable_rate_limit(monkeypatch):
 def patch_for_update(monkeypatch):
     """SQLite не поддерживает WITH FOR UPDATE — убираем блокировку."""
     from sqlalchemy import select
+
+    from models.user_subscriptions import UserSubscription
     from repositrories.user_repository import UserRepository
     from repositrories.user_subscription_repository import UserSubscriptionRepository
-    from models.user_subscriptions import UserSubscription
 
     async def _get_user(self, user_id: int):
         return await self.get(user_id)

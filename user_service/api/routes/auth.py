@@ -11,7 +11,7 @@ from core.security import create_token, decode_token, verify_password
 from dto.user_dto import CreateUserDTO
 from exceptions.user import UserNotFound
 from schemas.auth import ForgotPasswordRequest, LoginRequest, RefreshRequest, ResetPasswordRequest
-from schemas.user import UserResponse, RegisterRequest
+from schemas.user import RegisterRequest, UserResponse
 from services.email_service import send_reset_password_email, send_verification_email
 from services.user.user_service import UserService
 

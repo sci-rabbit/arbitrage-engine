@@ -1,10 +1,9 @@
 import asyncpg
 import structlog
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi import Request, HTTPException, FastAPI
-from sqlalchemy.exc import IntegrityError, DataError, OperationalError
+from sqlalchemy.exc import DataError, IntegrityError, OperationalError
 from starlette.responses import JSONResponse
-
 
 logger = structlog.getLogger(__name__)
 

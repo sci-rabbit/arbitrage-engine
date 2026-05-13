@@ -1,5 +1,6 @@
 """Tests for ComputeScores.compute_channel_scores_batch and compute_final_scores_batch."""
 from unittest.mock import MagicMock
+
 from services.similarity_service.compute_scores import ComputeScores
 
 

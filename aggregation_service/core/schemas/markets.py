@@ -1,11 +1,10 @@
 from datetime import datetime
-from typing import List
 
 from pydantic import BaseModel
 
 
 class DeleteMarketsBody(BaseModel):
-    market_ids: List[str]
+    market_ids: list[str]
 
 
 class MarketShort(BaseModel):

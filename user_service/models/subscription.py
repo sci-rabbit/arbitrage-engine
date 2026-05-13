@@ -1,11 +1,10 @@
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String, Numeric, Integer
+from sqlalchemy import Integer, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base
-
 
 if TYPE_CHECKING:
     from models.order_product_association import OrderProductAssociation

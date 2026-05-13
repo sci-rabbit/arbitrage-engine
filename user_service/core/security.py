@@ -1,8 +1,8 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Literal
 
 import bcrypt
-from jose import JWTError, jwt
+from jose import jwt
 
 from core.config import settings
 
@@ -22,19 +22,19 @@ def create_token(
     extra_claims: dict | None = None,
 ) -> str:
     if token_type == "access":
-        expire = datetime.now(timezone.utc) + timedelta(
+        expire = datetime.now(UTC) + timedelta(
             minutes=settings.jwt.access_token_expire_minutes
         )
     elif token_type == "refresh":
-        expire = datetime.now(timezone.utc) + timedelta(
+        expire = datetime.now(UTC) + timedelta(
             days=settings.jwt.refresh_token_expire_days
         )
     elif token_type == "verify":
-        expire = datetime.now(timezone.utc) + timedelta(
+        expire = datetime.now(UTC) + timedelta(
             hours=settings.jwt.verify_token_expire_hours
         )
     else:
-        expire = datetime.now(timezone.utc) + timedelta(
+        expire = datetime.now(UTC) + timedelta(
             hours=settings.jwt.reset_token_expire_hours
         )
 

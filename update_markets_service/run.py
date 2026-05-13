@@ -3,8 +3,8 @@ import logging
 import sys
 
 import sentry_sdk
-from sentry_sdk.integrations.asyncio import AsyncioIntegration
 import structlog
+from sentry_sdk.integrations.asyncio import AsyncioIntegration
 
 logging.basicConfig(
     level=logging.INFO,
@@ -41,7 +41,6 @@ from core.repositories.health_repository import HealthRepository
 from services.kalshi_markets_loader import KalshiPollingService
 from services.polymarket_markets_loader import PolymarketPollingService
 from services.predict_fun_markets_loader import PredictFunPollingService
-
 
 logger = structlog.getLogger(__name__)
 

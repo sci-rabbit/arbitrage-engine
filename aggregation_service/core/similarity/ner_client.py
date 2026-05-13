@@ -1,11 +1,10 @@
 """Lazy initialization of NER model to avoid loading on import."""
 
-from typing import Optional
 
 import torch
 from transformers import pipeline
 
-_ner_model: Optional[pipeline] = None
+_ner_model: pipeline | None = None
 
 device = 0 if torch.cuda.is_available() else -1
 

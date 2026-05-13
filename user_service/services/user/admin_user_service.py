@@ -1,4 +1,4 @@
-from typing import List
+import builtins
 
 from models.user import User
 from services.user.user_service import UserService
@@ -11,7 +11,7 @@ class AdminUserService(UserService):
         limit: int = 50,
         offset: int = 0,
         **filters,
-    ) -> List[User]:
+    ) -> list[User]:
         return await self.user_repo.paginate(limit=limit, offset=offset, **filters)
 
     async def search(
@@ -19,7 +19,7 @@ class AdminUserService(UserService):
         query: str,
         limit: int = 50,
         offset: int = 0,
-    ) -> List[User]:
+    ) -> builtins.list[User]:
         return await self.user_repo.search(query, limit=limit, offset=offset)
 
     async def grant_access(self, user: User) -> User:

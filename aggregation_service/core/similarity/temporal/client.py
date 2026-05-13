@@ -1,6 +1,6 @@
-from core.similarity.temporal.parser import parse_temporal, Interval
-
 from datetime import datetime
+
+from core.similarity.temporal.parser import Interval, parse_temporal
 
 
 def temporal_similarity(a: Interval, b: Interval) -> float:

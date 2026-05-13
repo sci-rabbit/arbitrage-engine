@@ -1,8 +1,7 @@
 """Tests for numeric constraint parsing and conflict/match detection."""
-import pytest
+from core.similarity.numeric.conflict import numeric_conflict, operators_conflict
 from core.similarity.numeric.models import NumericConstraint, Operator
-from core.similarity.numeric.pasrer import parse_numeric_constraints, numeric_context_match
-from core.similarity.numeric.conflict import operators_conflict, numeric_conflict
+from core.similarity.numeric.pasrer import numeric_context_match, parse_numeric_constraints
 
 
 def _c(op: Operator, val: float) -> NumericConstraint:

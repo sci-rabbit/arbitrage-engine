@@ -1,10 +1,9 @@
-from typing import List, Tuple, Dict
 
 from fastapi import HTTPException
-from starlette.status import HTTP_400_BAD_REQUEST
-from sqlalchemy import select, delete, and_
+from sqlalchemy import and_, delete, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.status import HTTP_400_BAD_REQUEST
 
 from core import Market
 from core.models.market_pairs import Pair
@@ -17,7 +16,7 @@ class PairRepository(AsyncRepository[Pair]):
     def __init__(self, session: AsyncSession):
         super().__init__(session)
 
-    async def add_pair(self, markets_ids_list: List[list]) -> List[Pair]:
+    async def add_pair(self, markets_ids_list: list[list]) -> list[Pair]:
         try:
             normalized_lists = [
                 sorted(set(markets_ids)) for markets_ids in markets_ids_list
@@ -47,7 +46,7 @@ class PairRepository(AsyncRepository[Pair]):
             )
         )
 
-    async def get_all_market_ids(self) -> List[List[str]]:
+    async def get_all_market_ids(self) -> list[list[str]]:
         query = select(Pair.market_ids)
         result = await self.session.execute(query)
         market_ids_list = result.scalars().all()
@@ -59,7 +58,7 @@ class PairRepository(AsyncRepository[Pair]):
         threshold_final_score: float = 0.7,
         limit: int = 500,
         offset: int = 0,
-    ) -> List[Tuple[Pair, List[Market]]]:
+    ) -> list[tuple[Pair, list[Market]]]:
         query_pairs = (
             select(Pair)
             .where(Pair.distance <= threshold_distance)
@@ -81,9 +80,9 @@ class PairRepository(AsyncRepository[Pair]):
         result_markets = await self.session.execute(query_markets)
         markets = result_markets.scalars().all()
 
-        markets_dict: Dict[str, Market] = {m.platform_market_id: m for m in markets}
+        markets_dict: dict[str, Market] = {m.platform_market_id: m for m in markets}
 
-        pairs_with_markets: List[Tuple[Pair, List[Market]]] = []
+        pairs_with_markets: list[tuple[Pair, list[Market]]] = []
         for pair in pairs:
             pair_markets = [
                 markets_dict[mid] for mid in pair.market_ids if mid in markets_dict

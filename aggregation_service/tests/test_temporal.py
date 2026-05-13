@@ -1,8 +1,8 @@
 """Tests for temporal parsing and similarity."""
 from datetime import datetime
-from core.similarity.temporal.parser import parse_temporal
-from core.similarity.temporal.client import temporal_similarity, get_temporal_similarity
 
+from core.similarity.temporal.client import get_temporal_similarity, temporal_similarity
+from core.similarity.temporal.parser import parse_temporal
 
 # ---------------------------------------------------------------------------
 # parse_temporal

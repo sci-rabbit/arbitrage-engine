@@ -1,7 +1,7 @@
 from core.similarity.numeric.conflict import numeric_conflict
 from core.similarity.numeric.pasrer import (
-    parse_numeric_constraints,
     numeric_context_match,
+    parse_numeric_constraints,
 )
 from core.similarity.temporal.client import get_temporal_similarity
 

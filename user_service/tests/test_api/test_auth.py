@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.security import create_token, decode_token
 from tests.factories import make_user
 
-
 # ---------------------------------------------------------------------------
 # POST /auth/register
 # ---------------------------------------------------------------------------

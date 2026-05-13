@@ -3,17 +3,12 @@ import time
 
 import aiohttp
 import structlog
-from typing import List, Dict, Tuple
-
 from aiohttp_socks import ProxyConnector
 
-
 from core.config import settings
-from core.models.database import get_ro_session
-from core.models.database import get_rw_session
+from core.models.database import get_ro_session, get_rw_session
 from core.repositories.orderbook_repository import OrderbookAsyncRepository
 from core.repositories.poly_repository import PolymarketRepository
-
 
 log = structlog.get_logger(__name__)
 
@@ -31,9 +26,9 @@ PERIODIC_RECONNECT_SECONDS = 600  # принудительный реконне�
 class PolymarketWSWorker:
     def __init__(
         self,
-        asset_ids: List[str],
+        asset_ids: list[str],
         updates_queue: asyncio.Queue,
-        market_map: Dict[str, Tuple[str, str]],
+        market_map: dict[str, tuple[str, str]],
     ):
         self.asset_ids = asset_ids
         self.updates_queue = updates_queue
@@ -71,7 +66,7 @@ class PolymarketWSWorker:
                                     await ws.close(code=1000, message=b"watchdog timeout")
                                     break
 
-                        connect_ts = time.monotonic()
+                        _connect_ts = time.monotonic()
 
                         async def periodic_reconnect() -> None:
                             await asyncio.sleep(PERIODIC_RECONNECT_SECONDS)
@@ -163,7 +158,7 @@ class MarketFetcher:
     def __init__(self, market_repository):
         self.market_repository = market_repository
 
-    async def fetch_asset_ids(self) -> List[str]:
+    async def fetch_asset_ids(self) -> list[str]:
         markets = await self.market_repository.get_active_markets()
         return [m.asset_id for m in markets if m.asset_id]
 
@@ -174,7 +169,7 @@ class WSManager:
         self.updates_queue = asyncio.Queue(maxsize=settings.ws_worker.UPDATES_QUEUE_MAX_SIZE)
         self.market_map = {}
         self.market_orderbooks = {}
-        self.workers: List[PolymarketWSWorker] = []
+        self.workers: list[PolymarketWSWorker] = []
         self._stop_event = asyncio.Event()
 
     async def stop(self) -> None:
