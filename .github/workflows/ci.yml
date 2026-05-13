@@ -1,0 +1,133 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  lint-and-test:
+    name: "${{ matrix.service }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: aggregation_service
+            python: "3.11"
+            env: |
+              DB__USER=test
+              DB__PASSWORD=test
+              DB__HOST=localhost
+              DB__PORT=5432
+              DB__NAME=test
+              REDIS__HOST=localhost
+              REDIS__PORT=6379
+              REDIS__PASSWORD=
+              REDIS__DB=0
+              JWT__SECRET_KEY=test_secret
+
+          - service: user_service
+            python: "3.12"
+            env: |
+              DB__USER=test
+              DB__PASSWORD=test
+              DB__HOST=localhost
+              DB__PORT=5432
+              DB__NAME=test
+              JWT__SECRET_KEY=test_secret
+              REDIS__URL=redis://localhost:6379
+              NOWPAYMENTS__API_KEY=test
+              NOWPAYMENTS__IPN_SECRET=test
+              NOWPAYMENTS__WEBHOOK_BASE_URL=https://example.com
+              EMAIL__HOST=localhost
+              EMAIL__PORT=587
+              EMAIL__USERNAME=test@test.com
+              EMAIL__PASSWORD=test
+              EMAIL__FROM_EMAIL=test@test.com
+              APP__DOMAIN=https://example.com
+
+          - service: update_markets_service
+            python: "3.12"
+            env: |
+              DB__USER=test
+              DB__PASSWORD=test
+              DB__HOST=localhost
+              DB__PORT=5432
+              DB__NAME=test
+              KALSHI__PROXY_URL=http://localhost:8888
+              POLYMARKET__PROXY_URL=http://localhost:8888
+              PREDICT_FUN__API_KEY=test
+              PREDICT_FUN__PROXY_URL=http://localhost:8888
+
+          - service: update_orderbooks_service
+            python: "3.12"
+            env: |
+              DB__USER=test
+              DB__PASSWORD=test
+              DB__HOST=localhost
+              DB__PORT=5432
+              DB__NAME=test
+              KALSHI__ACCESS_KEY=test
+              KALSHI__PRIVATE_KEY_PATH=tests/fixtures/test_key.pem
+              PREDICT_FUN__API_KEY=test
+              CELERY_BROKER_URL=redis://localhost:6379/0
+              CELERY_RESULT_BACKEND=redis://localhost:6379/0
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.service }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install Poetry
+        run: pip install --no-cache-dir poetry
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pypoetry
+          key: poetry-${{ matrix.service }}-${{ hashFiles(format('{0}/poetry.lock', matrix.service)) }}
+          restore-keys: poetry-${{ matrix.service }}-
+
+      - name: Install dependencies
+        run: poetry install --no-root --no-interaction --no-ansi
+
+      - name: Ruff lint
+        run: poetry run ruff check .
+
+      - name: Run tests
+        env:
+          ${{ matrix.env }}
+        run: poetry run pytest -q --tb=short
+
+  docker-build:
+    name: Docker build — ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - aggregation_service
+          - user_service
+          - update_markets_service
+          - update_orderbooks_service
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build ${{ matrix.service }}
+        run: |
+          docker build \
+            -f ${{ matrix.service }}/Dockerfile \
+            --target production \
+            . \
+          || docker build -f ${{ matrix.service }}/Dockerfile .

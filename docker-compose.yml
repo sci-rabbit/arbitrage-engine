@@ -1,0 +1,277 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: aggregation_postgres
+    restart: unless-stopped
+    command: >
+      postgres
+      -c shared_buffers=512MB
+      -c work_mem=64MB
+      -c effective_cache_size=1GB
+    env_file:
+      - aggregation_service/.env
+    environment:
+      POSTGRES_USER: ${DB__USER}
+      POSTGRES_PASSWORD: ${DB__PASSWORD}
+      POSTGRES_DB: ${DB__NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB__USER:-postgres}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aggregation_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: aggregation_redis
+    restart: unless-stopped
+    command: redis-server --port 6378
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-p", "6378", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aggregation_network
+      - user_network
+
+  # ── aggregation_service: три процесса, один образ ─────────────────────────
+
+  aggregation_service:
+    build:
+      context: .
+      dockerfile: aggregation_service/Dockerfile
+    container_name: aggregation_service
+    restart: unless-stopped
+    env_file:
+      - aggregation_service/.env
+    environment:
+      REDIS__HOST: redis
+      REDIS__PORT: "6378"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aggregation_network
+    ports:
+      - "8001:8001"
+    command: python main.py
+
+  aggregation_polling:
+    build:
+      context: .
+      dockerfile: aggregation_service/Dockerfile
+    container_name: aggregation_polling
+    restart: unless-stopped
+    env_file:
+      - aggregation_service/.env
+    environment:
+      REDIS__HOST: redis
+      REDIS__PORT: "6378"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aggregation_network
+    command: python polling_new_pairs.py
+
+  aggregation_arbitrage:
+    build:
+      context: .
+      dockerfile: aggregation_service/Dockerfile
+    container_name: aggregation_arbitrage
+    restart: unless-stopped
+    env_file:
+      - aggregation_service/.env
+    environment:
+      REDIS__HOST: redis
+      REDIS__PORT: "6378"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aggregation_network
+    command: python run_arbitrage_worker.py
+
+  # ── update_markets_service ────────────────────────────────────────────────
+
+  update_markets_service:
+    build:
+      context: .
+      dockerfile: update_markets_service/Dockerfile
+    container_name: update_markets_service
+    restart: unless-stopped
+    env_file:
+      - update_markets_service/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - aggregation_network
+      - embedding_network
+    command: python run.py
+
+  markets_embedding:
+    build:
+      context: .
+      dockerfile: update_markets_service/Dockerfile
+    container_name: markets_embedding
+    restart: unless-stopped
+    env_file:
+      - update_markets_service/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - aggregation_network
+      - embedding_network
+    command: python core/markets_embedding/run_embedding.py
+
+  markets_db_cleaner:
+    build:
+      context: .
+      dockerfile: update_markets_service/Dockerfile
+    container_name: markets_db_cleaner
+    restart: unless-stopped
+    env_file:
+      - update_markets_service/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - aggregation_network
+    command: python core/db_cleaner.py
+
+  # ── update_orderbooks_service ─────────────────────────────────────────────
+
+  orderbooks_worker:
+    build:
+      context: .
+      dockerfile: update_orderbooks_service/Dockerfile
+    container_name: orderbooks_worker
+    restart: unless-stopped
+    env_file:
+      - update_orderbooks_service/.env
+    environment:
+      CELERY_BROKER_URL: redis://redis:6378/0
+      CELERY_RESULT_BACKEND: redis://redis:6378/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aggregation_network
+    command: celery -A tasks worker --loglevel=info
+    healthcheck:
+      test: [ "CMD", "celery", "-A", "tasks", "inspect", "ping" ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  update_orderbooks_service:
+    build:
+      context: .
+      dockerfile: update_orderbooks_service/Dockerfile
+    container_name: update_orderbooks_service
+    restart: unless-stopped
+    env_file:
+      - update_orderbooks_service/.env
+    environment:
+      CELERY_BROKER_URL: redis://redis:6378/0
+      CELERY_RESULT_BACKEND: redis://redis:6378/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      orderbooks_worker:
+        condition: service_healthy
+    networks:
+      - aggregation_network
+    command: python orderbook_service/main.py
+
+  # ── frontend ──────────────────────────────────────────────────────────────
+
+  frontend2:
+    build:
+      context: .
+      dockerfile: frontend2/Dockerfile
+    container_name: frontend2
+    restart: unless-stopped
+    environment:
+      USER_API_URL: http://user_service:8002
+      AGGREGATION_API_URL: http://aggregation_service:8001
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    networks:
+      - user_network
+      - aggregation_network
+
+  # ── user_service ──────────────────────────────────────────────────────────
+
+  user_postgres:
+    image: postgres:17-alpine
+    container_name: user_postgres
+    restart: unless-stopped
+    env_file:
+      - user_service/.env
+    volumes:
+      - user_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - user_network
+
+  user_service:
+    build:
+      context: user_service
+      dockerfile: Dockerfile
+    container_name: user_service
+    restart: unless-stopped
+    env_file:
+      - user_service/.env
+    environment:
+      DB__HOST: user_postgres
+      REDIS__URL: redis://redis:6378/1
+    depends_on:
+      user_postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - user_network
+    ports:
+      - "8002:8002"
+
+volumes:
+  postgres_data:
+  redis_data:
+  user_postgres_data:
+
+networks:
+  aggregation_network:
+    driver: bridge
+  user_network:
+    driver: bridge
+  embedding_network:
+    external: true
+    name: embedding_default

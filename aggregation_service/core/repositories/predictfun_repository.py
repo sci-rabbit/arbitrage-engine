@@ -1,0 +1,18 @@
+from typing import List
+
+from sqlalchemy import select
+
+from core import Market
+from core.repositories.market_repository import MarketRepository
+
+
+class PredictfunRepository(MarketRepository):
+
+    async def search(self, common_id: str) -> List[Market]:
+        query = (
+            select(Market)
+            .where(Market.event_slug == common_id)
+            .where(Market.platform == "predict_fun")
+        )
+        result = await self.session.execute(query)
+        return list(result.scalars().all())
