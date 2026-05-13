@@ -1,5 +1,6 @@
 """Lazy initialization of NER model to avoid loading on import."""
 
+from __future__ import annotations
 
 import torch
 from transformers import pipeline
