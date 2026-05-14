@@ -10,6 +10,12 @@ from sentry_sdk.integrations.asyncio import AsyncioIntegration
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 
+logging.basicConfig(
+    level=logging.INFO,
+    stream=sys.stderr,
+    format="%(message)s",
+)
+
 structlog.configure(
     processors=[
         structlog.stdlib.add_log_level,
