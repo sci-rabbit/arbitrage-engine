@@ -34,7 +34,7 @@ from core.repositories.kalshi_repository import KalshiRepository
 log = structlog.get_logger(__name__)
 
 WATCHDOG_TIMEOUT_SECONDS = 60
-PERIODIC_RECONNECT_SECONDS = 600
+PERIODIC_RECONNECT_SECONDS = 300
 
 
 def _make_connector() -> ProxyConnector | None:
@@ -61,10 +61,6 @@ class KalshiWSWorker:
         self.updates_queue = updates_queue
         self.new_tickers_queue = new_tickers_queue
         self.url = settings.kalshi.ws_url
-        self.headers = settings.kalshi.get_headers(
-            method="GET",
-            path="/trade-api/ws/v2",
-        )
         self._sub_id = 0
         self._last_msg_ts: float | None = None
 
@@ -135,9 +131,13 @@ class KalshiWSWorker:
                     tickers=self.tickers,
                 )
 
+                fresh_headers = settings.kalshi.get_headers(
+                    method="GET",
+                    path="/trade-api/ws/v2",
+                )
                 async with aiohttp.ClientSession(
                     connector=_make_connector(),
-                    headers=self.headers,
+                    headers=fresh_headers,
                 ) as session:
                     async with session.ws_connect(self.url) as ws:
                         await self._subscribe(ws, self.tickers)
