@@ -18,6 +18,7 @@ Endpoint: wss://api.elections.kalshi.com/trade-api/ws/v2 (требуется aut
   через REST: https://docs.kalshi.com/api-reference/market/get-markets
 """
 import asyncio
+import time
 from typing import Any
 
 import aiohttp
@@ -31,6 +32,9 @@ from core.models.database import get_ro_session
 from core.repositories.kalshi_repository import KalshiRepository
 
 log = structlog.get_logger(__name__)
+
+WATCHDOG_TIMEOUT_SECONDS = 60
+PERIODIC_RECONNECT_SECONDS = 600
 
 
 def _make_connector() -> ProxyConnector | None:
@@ -62,6 +66,7 @@ class KalshiWSWorker:
             path="/trade-api/ws/v2",
         )
         self._sub_id = 0
+        self._last_msg_ts: float | None = None
 
     def _next_id(self) -> int:
         self._sub_id += 1
@@ -136,11 +141,38 @@ class KalshiWSWorker:
                 ) as session:
                     async with session.ws_connect(self.url) as ws:
                         await self._subscribe(ws, self.tickers)
+                        self._last_msg_ts = time.monotonic()
 
+                        async def watchdog() -> None:
+                            while True:
+                                await asyncio.sleep(WATCHDOG_TIMEOUT_SECONDS)
+                                if self._last_msg_ts is not None and (
+                                    time.monotonic() - self._last_msg_ts > WATCHDOG_TIMEOUT_SECONDS
+                                ):
+                                    log.warning(
+                                        "KalshiWSWorker.watchdog_timeout",
+                                        timeout_seconds=WATCHDOG_TIMEOUT_SECONDS,
+                                        tickers=self.tickers,
+                                    )
+                                    await ws.close(code=1000, message=b"watchdog timeout")
+                                    break
+
+                        async def periodic_reconnect() -> None:
+                            await asyncio.sleep(PERIODIC_RECONNECT_SECONDS)
+                            log.info(
+                                "KalshiWSWorker.periodic_reconnect",
+                                interval_seconds=PERIODIC_RECONNECT_SECONDS,
+                                tickers=self.tickers,
+                            )
+                            await ws.close(code=1000, message=b"periodic reconnect")
+
+                        watchdog_task = asyncio.create_task(watchdog())
+                        reconnect_task = asyncio.create_task(periodic_reconnect())
                         dyn_task = asyncio.create_task(self._dynamic_subscribe_loop(ws))
                         try:
                             async for msg in ws:
                                 if msg.type == WSMsgType.TEXT:
+                                    self._last_msg_ts = time.monotonic()
                                     try:
                                         data = msg.json()
                                     except Exception as e:
@@ -158,11 +190,14 @@ class KalshiWSWorker:
                                     )
                                     break
                         finally:
+                            watchdog_task.cancel()
+                            reconnect_task.cancel()
                             dyn_task.cancel()
-                            try:
-                                await dyn_task
-                            except asyncio.CancelledError:
-                                pass
+                            for t in (watchdog_task, reconnect_task, dyn_task):
+                                try:
+                                    await t
+                                except asyncio.CancelledError:
+                                    pass
 
                 delay = 1.0
 

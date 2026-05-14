@@ -18,6 +18,7 @@ Endpoint: wss://ws.predict.fun/ws
 Статусы: в документации явных событий «маркет закрыт» / «ордербук недоступен» по WS не описано.
 """
 import asyncio
+import time
 from typing import Any
 
 import aiohttp
@@ -31,6 +32,9 @@ from core.orderbook_formatters.predictfun_formatter import format_predictfun_ord
 from core.repositories.predictfun_repository import PredictfunRepository
 
 log = structlog.get_logger(__name__)
+
+WATCHDOG_TIMEOUT_SECONDS = 45  # heartbeat приходит каждые ~15с, 3 пропущенных → реконнект
+PERIODIC_RECONNECT_SECONDS = 600
 
 
 def _make_connector() -> ProxyConnector | None:
@@ -60,6 +64,7 @@ class PredictfunWSWorker:
         self.url = settings.predict_fun.ws_url
         self.api_key = settings.predict_fun.api_key
         self._request_id = 0
+        self._last_msg_ts: float | None = None
 
     def _next_id(self) -> int:
         self._request_id += 1
@@ -151,11 +156,38 @@ class PredictfunWSWorker:
                 ) as session:
                     async with session.ws_connect(self.url) as ws:
                         await self._subscribe(ws, self.market_ids)
+                        self._last_msg_ts = time.monotonic()
 
+                        async def watchdog() -> None:
+                            while True:
+                                await asyncio.sleep(WATCHDOG_TIMEOUT_SECONDS)
+                                if self._last_msg_ts is not None and (
+                                    time.monotonic() - self._last_msg_ts > WATCHDOG_TIMEOUT_SECONDS
+                                ):
+                                    log.warning(
+                                        "PredictfunWSWorker.watchdog_timeout",
+                                        timeout_seconds=WATCHDOG_TIMEOUT_SECONDS,
+                                        market_ids=self.market_ids,
+                                    )
+                                    await ws.close(code=1000, message=b"watchdog timeout")
+                                    break
+
+                        async def periodic_reconnect() -> None:
+                            await asyncio.sleep(PERIODIC_RECONNECT_SECONDS)
+                            log.info(
+                                "PredictfunWSWorker.periodic_reconnect",
+                                interval_seconds=PERIODIC_RECONNECT_SECONDS,
+                                market_ids=self.market_ids,
+                            )
+                            await ws.close(code=1000, message=b"periodic reconnect")
+
+                        watchdog_task = asyncio.create_task(watchdog())
+                        reconnect_task = asyncio.create_task(periodic_reconnect())
                         dyn_task = asyncio.create_task(self._dynamic_subscribe_loop(ws))
                         try:
                             async for msg in ws:
                                 if msg.type == WSMsgType.TEXT:
+                                    self._last_msg_ts = time.monotonic()
                                     try:
                                         data = msg.json()
                                     except Exception as e:
@@ -190,11 +222,14 @@ class PredictfunWSWorker:
                                     )
                                     break
                         finally:
+                            watchdog_task.cancel()
+                            reconnect_task.cancel()
                             dyn_task.cancel()
-                            try:
-                                await dyn_task
-                            except asyncio.CancelledError:
-                                pass
+                            for t in (watchdog_task, reconnect_task, dyn_task):
+                                try:
+                                    await t
+                                except asyncio.CancelledError:
+                                    pass
 
                 delay = 1.0
 
